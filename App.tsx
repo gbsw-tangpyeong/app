@@ -9,7 +9,7 @@ import Navigation from './Page/Navigation';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [isLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(true);
 
   return (
     <NavigationContainer>

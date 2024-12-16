@@ -5,6 +5,7 @@ import LoginMainScreen from './Page/LoginMainPage';
 import LoginPage from './Page/LoginPage';
 import SignupPage from './Page/SignupPage';
 import Navigation from './Page/Navigation';
+import SettingPage from './Page/SettingPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ export default function App() {
         {isLoggedIn ? (
           <Stack.Group screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Home" component={Navigation} />
+            <Stack.Screen name="SettingPage" component={SettingPage} /> 
           </Stack.Group>
         ) : (
           <Stack.Group screenOptions={{ headerShown: false }}>

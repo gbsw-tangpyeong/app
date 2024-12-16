@@ -21,6 +21,7 @@ export default function HomeScreen({ navigation }) {
     console.log('런닝시작 버튼 클릭 클릭');
   };
 
+  // 추천 코스 예시 데이터
   const activities = [
     { key: 1, name: '런닝 코스 이름 1', distance: '5 km', kcal: '300 kcal', time: '30분' },
     { key: 2, name: '런닝 코스 이름 2', distance: '7 km', kcal: '400 kcal', time: '45분' },

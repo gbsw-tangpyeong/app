@@ -26,25 +26,25 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.totalBox}>
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Icon name="walk" size={24} color="#666" style={styles.statIcon} />
+              <Icon name="walk" size={26} color="#666" style={styles.statIcon} />
               <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>20.22</Text>
+                <Text style={styles.statValue}>103.2</Text>
                 <Text style={styles.statLabel}>km</Text>
               </View>
-              <View style={styles.separatorVertical} />
             </View>
+            <View style={styles.separatorVertical} />
             <View style={styles.statItem}>
-              <Icon name="time-outline" size={24} color="#666" style={styles.statIcon} />
+              <Icon name="time-outline" size={26} color="#666" style={styles.statIcon} />
               <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>5.00</Text>
+                <Text style={styles.statValue}>16.9</Text>
                 <Text style={styles.statLabel}>hr</Text>
               </View>
-              <View style={styles.separatorVertical} />
             </View>
+            <View style={styles.separatorVertical} />
             <View style={styles.statItem}>
-              <Icon name="flame-outline" size={24} color="#666" style={styles.statIcon} />
+              <Icon name="flame-outline" size={26} color="#666" style={styles.statIcon} />
               <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>600.50</Text>
+                <Text style={styles.statValue}>15.6</Text>
                 <Text style={styles.statLabel}>kcal</Text>
               </View>
             </View>
@@ -72,7 +72,7 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={() => console.log('고객센터 클릭')} style={styles.optionContainer}>
-          <Icon name="help-circle-outline" size={24} color="#666" />
+          <Icon name="help-circle-outline" size={25} color="#666" />
           <Text style={styles.optionText}>고객센터</Text>
           <Icon name="chevron-forward-outline" size={20} color="#666" style={styles.arrowIcon} />
         </TouchableOpacity>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     right: 15,
   },
   profileTitle: {
-    fontSize: 20,
+    fontSize: 16,
     color: 'white',
     marginBottom: 10,
   },
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   totalBox: {
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 16,
+    padding: 10,
   },
   totalHeader: {
     flexDirection: 'row',
@@ -170,9 +170,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   statItem: {
+    width: 80,
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   statIcon: {
     marginRight: 5,
@@ -183,17 +183,17 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginRight: 5,
   },
   statLabel: {
     fontSize: 14,
     color: '#666',
   },
   separatorVertical: {
-    width: 1,
-    backgroundColor: '#ccc', // 연한 색으로 변경
+    width: 2,
+    backgroundColor: 'rgba(183, 183, 183, 0.3)',
     height: '100%',
     marginLeft: 5,
+    marginRight: 5
   },
   // 설정 옵션 박스
   settingsOptionsBox: {
@@ -226,7 +226,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   separator: {
+    margin: 'auto',
     height: 1,
+    width: 250,
     backgroundColor: '#ccc', // 연한 색으로 변경
   },
 });

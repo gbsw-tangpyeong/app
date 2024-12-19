@@ -6,6 +6,7 @@ import LoginPage from './Page/LoginPage';
 import SignupPage from './Page/SignupPage';
 import Navigation from './Page/Navigation';
 import SettingPage from './Page/SettingPage';
+import GoalSettingPage from './Page/GoalSettingPage'
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
           <Stack.Group screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Home" component={Navigation} />
             <Stack.Screen name="SettingPage" component={SettingPage} /> 
+            <Stack.Screen name="GoalSettingPage" component={GoalSettingPage} />
           </Stack.Group>
         ) : (
           <Stack.Group screenOptions={{ headerShown: false }}>

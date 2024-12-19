@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function HomeScreen({ navigation }) {
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(true); // 달리기중 상태
+  const [weeklyGoal, setWeeklyGoal] = useState(50);
+  const [currentDistance] = useState(35);
 
   const handleStartRunning = () => {
     console.log('런닝시작 버튼 클릭');
@@ -23,9 +26,9 @@ export default function HomeScreen({ navigation }) {
 
   // 추천 코스 예시 데이터
   const activities = [
-    { key: 1, name: '런닝 코스 이름 1', distance: '5 km', kcal: '300 kcal', time: '30분' },
-    { key: 2, name: '런닝 코스 이름 2', distance: '7 km', kcal: '400 kcal', time: '45분' },
-    { key: 3, name: '런닝 코스 이름 3', distance: '10 km', kcal: '600 kcal', time: '60분' },
+    { key: 1, date: '11월 11일', distance: '5 km', kcal: '300 kcal', time: '11.11 km/hr' },
+    { key: 2, date: '11월 10일', distance: '7 km', kcal: '400 kcal', time: '11.12 km/hr' },
+    { key: 3, date: '11월 9일', distance: '10 km', kcal: '600 kcal', time: '11.13 km/hr' },
   ];
 
   return (
@@ -43,15 +46,20 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.dailyQuestBox} onPress={handleDailyQuestClick}>
+      <TouchableOpacity style={styles.dailyQuestBox} onPress={() => navigation.navigate('GoalSettingPage', { goal: weeklyGoal, setWeeklyGoal })}>
         <View style={styles.weekGoalContainer}>
-          <Text style={styles.weekGoalText}>이번주 목표 50km</Text>
+          <Text style={styles.weekGoalText}>이번주 목표
+            <Text style={styles.weekGoalTextKm}> {weeklyGoal} km</Text>
+          </Text>
           <Icon name="chevron-forward-outline" size={24} color="#000" style={styles.arrowIcon} />
         </View>
+        <View style={styles.progressTextContainer}>
+          <Text style={styles.progressText}>{currentDistance} km </Text>
+          <Text style={styles.progressText}>{weeklyGoal - currentDistance} km 남음 </Text>
+        </View>
         <View style={styles.progressBarContainer}>
-          <Text style={styles.progressText}>35 km / 15 km 남음</Text>
           <View style={styles.progressBarBackground}>
-            <View style={styles.progressBar} />
+            <View style={[styles.progressBar, { width: `${(currentDistance / weeklyGoal) * 100}%` }]} />
           </View>
         </View>
       </TouchableOpacity>
@@ -71,13 +79,11 @@ export default function HomeScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       ) : (
-        <View style={styles.runningBox}>
-          <TouchableOpacity onPress={handleStartRunning}>
-            <View style={styles.startRunningBox}>
-              <Text style={styles.startRunningText}>러닝 시작하기</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={handleStartRunning} style={styles.runningBox}>
+          <View style={styles.startRunningBox}>
+            <Text style={styles.startRunningText}>러닝 시작하기</Text>
+          </View>
+        </TouchableOpacity>
       )}
 
       <View style={styles.activityHeader}>
@@ -99,8 +105,8 @@ export default function HomeScreen({ navigation }) {
                 style={styles.activityImage} 
               />
               <View style={styles.activityDetails}>
-                <Text style={styles.activityTitle}>{activity.name}</Text>
-                <Text style={styles.activitySubtitle}>{activity.distance}</Text>
+                <Text style={styles.activitySubtitle}>{activity.date}</Text>
+                <Text style={styles.activityTitle}>{activity.distance}</Text>
                 <Text style={styles.activitySubtitle}>
                   {activity.kcal} | {activity.time}
                 </Text>
@@ -140,10 +146,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#5D63D1',
     borderRadius: 10,
     padding: 20,
-    paddingBottom: 95,
+    paddingBottom: 100,
     width: '100%',
     height: 175,
-    marginTop: -10,
   },
   profilePicture: {
     width: 40,
@@ -169,10 +174,13 @@ const styles = StyleSheet.create({
   //이번주 목표
   dailyQuestBox: {
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 16,
+    borderRadius: 15,
+    paddingBottom: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
     position: 'absolute',
-    top: 120,
+    top: 125,
     left: 35,
     width: '90%',
     height: 110,
@@ -203,17 +211,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  weekGoalTextKm:{
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#5D63D1'
+  },
   arrowIcon: {
     marginLeft: 10,
   },
-  progressBarContainer: {
-    marginTop: 10,
+  progressTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 10
   },
   progressText: {
     fontSize: 12,
     color: '#666',
-    marginBottom: 5,
-    textAlign: 'center',
+    marginBottom: 0,
+  },
+  progressBarContainer: {
+    marginTop: 10,
   },
   progressBarBackground: {
     height: 8,
@@ -234,7 +253,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 80,
     padding: 16,
-    marginTop: 50,
+    marginTop: 55,
     marginBottom: 25,
     flexDirection: 'row',
     alignItems: 'center',
@@ -295,7 +314,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   recentActivityTitle: {
     fontSize: 14,
@@ -311,7 +330,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 10,
+    paddingTop: 9,
     paddingBottom: 10,
     marginBottom: 10,
     shadowColor: '#000',
@@ -327,10 +346,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
+    height: 100,
   },
   activityImage: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
     backgroundColor: 'lightgray',
     borderRadius: 5,
     marginRight: 10,
@@ -340,16 +360,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   activityTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
+    marginTop: 6,
+    marginBottom: 6,
+    paddingLeft: 2
   },
   activitySubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
+    marginTop: 2,
+    marginBottom: 2,
+    paddingLeft: 2
   },
   separator: {
     height: 1,
-    backgroundColor: 'lightgray',
+    width: 250,
+    margin: 'auto',
+    backgroundColor: '#f1f1f1',
     marginVertical: 8,
   },
 });

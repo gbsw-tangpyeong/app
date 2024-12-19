@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function SearchScreen({ navigation }) {
+export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const runningCourses = [
@@ -22,7 +22,7 @@ export default function SearchScreen({ navigation }) {
     course.name.includes(searchQuery)
   );
 
-  const handleCourseClick = key => {
+  const handleCourseClick = (key: number) => {
     console.log(`코스 클릭: ${key}`);
   };
 
@@ -40,7 +40,7 @@ export default function SearchScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.courseWrapper}>
-        {filteredCourses.map((item, index) => (
+        {filteredCourses.map((item, index) => (   
           <TouchableOpacity
             key={item.key}
             style={styles.courseItem}

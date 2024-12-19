@@ -1,8 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { NavigationProp } from '@react-navigation/native';
 
-export default function ProfileScreen({ navigation }) {
+type ProfileScreenProps = {
+  navigation: NavigationProp<any>;
+};
+
+export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.statusBar} />

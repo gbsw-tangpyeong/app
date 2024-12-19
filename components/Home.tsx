@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { NavigationProp } from '@react-navigation/native';
 
-export default function HomeScreen({ navigation }) {
+type ProfileScreenProps = {
+  navigation: NavigationProp<any>;
+};
+export default function HomeScreen({ navigation }: ProfileScreenProps) {
   const [isRunning, setIsRunning] = useState(true); // 달리기중 상태
   const [weeklyGoal, setWeeklyGoal] = useState(50);
   const [currentDistance] = useState(35);

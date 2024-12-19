@@ -33,7 +33,7 @@ export default function App() {
   };
 
   // 토큰을 이용하여 유저 정보를 가져오는 함수
-  const getUserInfo = async (token) => {
+  const getUserInfo = async (token: string | undefined) => {
     if (!token) return;
     try {
       const response = await fetch(

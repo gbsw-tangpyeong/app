@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { NavigationProp } from '@react-navigation/native';
 
-const SettingPage = ({ navigation }) => {
+type ProfileScreenProps = {
+  navigation: NavigationProp<any>;
+};
+
+const SettingPage = ({ navigation }: ProfileScreenProps ) => {
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [privacyEnabled, setPrivacyEnabled] = useState(false);
   const [accountEnabled, setAccountEnabled] = useState(false);

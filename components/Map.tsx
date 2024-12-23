@@ -5,22 +5,20 @@ import * as Location from 'expo-location';
 
 const Map: React.FC = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const webViewRef = useRef<WebView>(null);
 
   useEffect(() => {
     const getLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('위치에 대한 권한이 거부되었습니다.');
+        Alert.alert('위치 권한이 거부되었습니다.');
         return;
       }
 
       const locationWatcher = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.BestForNavigation, // GPS를 통한 최고 정확도
-          timeInterval: 5000, // 5초마다 업데이트
-          distanceInterval: 10, // 10m 이상 이동 시에만 업데이트
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 10, // Update every 10 meters
         },
         (userLocation) => {
           setLocation({
@@ -43,7 +41,7 @@ const Map: React.FC = () => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Kakao Map</title>
-      <script src="https://dapi.kakao.com/v2/maps/sdk.js?${API_KEY}&libraries=services"></script>
+      <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=&libraries=services"></script>
       <style>
         html, body { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100%; }

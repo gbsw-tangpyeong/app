@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Button, Alert } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 
 const Map: React.FC = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const webViewRef = useRef<WebView>(null);
 
   useEffect(() => {
-    (async () => {
+    const getLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+        setErrorMsg('위치에 대한 권한이 거부되었습니다.');
         return;
       }
 
       const locationWatcher = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 1000, distanceInterval: 1 },
+        {
+          accuracy: Location.Accuracy.BestForNavigation, // GPS를 통한 최고 정확도
+          timeInterval: 5000, // 5초마다 업데이트
+          distanceInterval: 10, // 10m 이상 이동 시에만 업데이트
+        },
         (userLocation) => {
           setLocation({
             latitude: userLocation.coords.latitude,
@@ -26,7 +31,9 @@ const Map: React.FC = () => {
       );
 
       return () => locationWatcher.remove();
-    })();
+    };
+
+    getLocation();
   }, []);
 
   const htmlContent = `
@@ -36,7 +43,7 @@ const Map: React.FC = () => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Kakao Map</title>
-      <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${API_KEY}&libraries=services"></script>
+      <script src="https://dapi.kakao.com/v2/maps/sdk.js?${API_KEY}&libraries=services"></script>
       <style>
         html, body { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100%; }
@@ -45,20 +52,16 @@ const Map: React.FC = () => {
     <body>
       <div id="map"></div>
       <script>
-        window.onload = function() {
-          if (!window.kakao || !window.kakao.maps) {
-            console.error("Kakao Maps SDK failed to load.");
-            return;
-          }
+        let map;
+        let marker = null;
 
+        window.onload = function() {
           const container = document.getElementById('map');
           const options = {
-            center: new kakao.maps.LatLng(33.450701, 126.570667),
+            center: new kakao.maps.LatLng(33.450701, 126.570667), // 기본 중심
             level: 3
           };
-          const map = new kakao.maps.Map(container, options);
-
-          let marker = null;
+          map = new kakao.maps.Map(container, options);
 
           window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'mapLoaded' }));
 
@@ -80,15 +83,6 @@ const Map: React.FC = () => {
     </html>
   `;
 
-  const handleButtonPress = () => {
-    if (location) {
-      const { latitude, longitude } = location;
-      Alert.alert('사용자 위치', `위도: ${latitude}, 경도: ${longitude}`);
-    } else {
-      Alert.alert('위치 정보 없음', '현재 위치를 가져올 수 없습니다.');
-    }
-  };
-
   const handleWebViewMessage = (event: any) => {
     const message = JSON.parse(event.nativeEvent.data);
     if (message.event === 'mapLoaded' && location) {
@@ -106,8 +100,6 @@ const Map: React.FC = () => {
     }
   }, [location]);
 
-  const webViewRef = React.useRef<WebView>(null);
-
   return (
     <View style={styles.container}>
       <WebView
@@ -118,9 +110,6 @@ const Map: React.FC = () => {
         javaScriptEnabled
         onMessage={handleWebViewMessage}
       />
-      <View style={styles.buttonContainer}>
-        <Button title="현재 위치 확인" onPress={handleButtonPress} />
-      </View>
     </View>
   );
 };
@@ -131,12 +120,6 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
   },
 });
 

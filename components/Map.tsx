@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, Alert, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
+import { KakaoMap_API } from '@env';
 
 const Map = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -52,7 +53,7 @@ const Map = () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kakao Map</title>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={api}"></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KakaoMap_API}"></script>
     <style>
       html, body { margin: 0; padding: 0; height: 100%; }
       #map { width: 100%; height: 100%; position: relative; }
@@ -64,24 +65,35 @@ const Map = () => {
       <div id="marker"></div>
     </div>
     <script>
+      console.log("카카오맵 로딩 시작...");
       var map;
       var markerElement = document.getElementById('marker');
 
       function initMap() {
-        var container = document.getElementById('map');
-        var options = {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 3
-        };
-        map = new kakao.maps.Map(container, options);
+        try {
+          var container = document.getElementById('map');
+          var options = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780),
+            level: 3
+          };
+          map = new kakao.maps.Map(container, options);
+          console.log("카카오맵 초기화 성공");
+        } catch (error) {
+          console.error("카카오맵 초기화 오류:", error);
+        }
       }
 
       function updateMarker(latitude, longitude) {
-        var position = new kakao.maps.LatLng(latitude, longitude);
-        var projection = map.getProjection();
-        var point = projection.pointFromCoords(position);
-        markerElement.style.left = point.x + 'px';
-        markerElement.style.top = point.y + 'px';
+        try {
+          var position = new kakao.maps.LatLng(latitude, longitude);
+          var projection = map.getProjection();
+          var point = projection.pointFromCoords(position);
+          markerElement.style.left = point.x + 'px';
+          markerElement.style.top = point.y + 'px';
+          console.log("마커 위치 업데이트:", latitude, longitude);
+        } catch (error) {
+          console.error("마커 업데이트 오류:", error);
+        }
       }
 
       window.onload = initMap;
@@ -98,7 +110,8 @@ const Map = () => {
         originWhitelist={['*']}
         source={{ html: htmlContent }}
         style={styles.webview}
-        javaScriptEnabled
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
       />
       {location && (
         <View style={styles.locationContainer}>

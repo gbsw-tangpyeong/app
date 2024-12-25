@@ -6,33 +6,39 @@ import { NavigationProp } from '@react-navigation/native';
 type ProfileScreenProps = {
   navigation: NavigationProp<any>;
 };
+
 export default function HomeScreen({ navigation }: ProfileScreenProps) {
-  const [isRunning, setIsRunning] = useState(true); // 달리기중 상태
-  const [weeklyGoal, setWeeklyGoal] = useState(50);
-  const [currentDistance] = useState(35);
+  const [isRunning, setIsRunning] = useState(false); // 러닝 상태
+  const [weeklyGoal, setWeeklyGoal] = useState(50); // 이번 주 목표
+  const [currentDistance] = useState(35); // 현재 달린 거리
 
-  const handleStartRunning = () => {
-    console.log('런닝시작 버튼 클릭');
-  };
-
-  const handleActivityClick = (key: number) => {
-    console.log(`최근 활동 클릭: ${key}`);
-  };
-
-  const handleDailyQuestClick = () => {
-    console.log('일일 퀘스트 클릭');
-  };
-
-  const handleRunningBoxClick = () => {
-    console.log('런닝시작 버튼 클릭 클릭');
-  };
-
-  // 추천 코스 예시 데이터
+  // 최근 활동 데이터 (시간을 분 단위로 변경)
   const activities = [
-    { key: 1, date: '11월 11일', distance: '5 km', kcal: '300 kcal', time: '11.11 km/hr' },
-    { key: 2, date: '11월 10일', distance: '7 km', kcal: '400 kcal', time: '11.12 km/hr' },
-    { key: 3, date: '11월 9일', distance: '10 km', kcal: '600 kcal', time: '11.13 km/hr' },
+    { key: 1, name: '코스 A', distance: '5 km', kcal: '300 kcal', time: '30분', image: '이미지url' },
+    { key: 2, name: '코스 B', distance: '7 km', kcal: '400 kcal', time: '40분', image: '이미지url' },
+    { key: 3, name: '코스 C', distance: '10 km', kcal: '600 kcal', time: '60분', image: '이미지url' },
+    { key: 4, name: '코스 D', distance: '6 km', kcal: '350 kcal', time: '35분', image: '이미지url' },
+    { key: 5, name: '코스 E', distance: '8 km', kcal: '500 kcal', time: '50분', image: '이미지url' },
+    { key: 6, name: '코스 F', distance: '9 km', kcal: '550 kcal', time: '55분', image: '이미지url' },
+    { key: 7, name: '코스 G', distance: '3 km', kcal: '200 kcal', time: '20분', image: '이미지url' },
+    { key: 8, name: '코스 H', distance: '4 km', kcal: '250 kcal', time: '25분', image: '이미지url' },
+    { key: 9, name: '코스 I', distance: '5 km', kcal: '300 kcal', time: '30분', image: '이미지url' },
+    { key: 10, name: '코스 J', distance: '6 km', kcal: '350 kcal', time: '36분', image: '이미지url' },
   ];
+
+  // 활동 클릭 시 동작
+  const handleActivityClick = (activity: { key: number; name: string; distance: string; kcal: string; time: string; image: string; }) => {
+    navigation.navigate('ActivitiesDetailScreen', { activity });
+  };
+
+  // 지도 페이지로 이동하는 함수
+  const navigateToMap = () => {
+    navigation.navigate('지도');
+  };
+
+  const navigateToStrat = () => {
+    navigation.navigate('코스 검색');
+  }
 
   return (
     <View style={styles.container}>
@@ -68,7 +74,7 @@ export default function HomeScreen({ navigation }: ProfileScreenProps) {
       </TouchableOpacity>
 
       {isRunning ? (
-        <TouchableOpacity style={styles.runningBox} onPress={handleRunningBoxClick}>
+        <TouchableOpacity style={styles.runningBox} onPress={navigateToMap}>
           <View style={styles.runningInfoContainer}>
             <View style={styles.runningCircle} />
             <View style={styles.runningDetails}>
@@ -82,46 +88,35 @@ export default function HomeScreen({ navigation }: ProfileScreenProps) {
           </View>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={handleStartRunning} style={styles.runningBox}>
+        <TouchableOpacity onPress={navigateToStrat} style={styles.runningBox}>
           <View style={styles.startRunningBox}>
-            <Text style={styles.startRunningText}>러닝 시작하기</Text>
+            <Text style={styles.startRunningText}>런닝 시작하기</Text>
           </View>
         </TouchableOpacity>
       )}
 
       <View style={styles.activityHeader}>
         <Text style={styles.recentActivityTitle}>최근 활동</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('코스 검색')}>
+        <TouchableOpacity onPress={() => navigation.navigate('AllActivities')}>
           <Text style={styles.allActivitiesButton}>모두</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.activityBox}>
-        {activities.map((activity, index) => (
+        {activities.slice(0, 3).map((activity) => (
           <View key={activity.key}>
-            <TouchableOpacity
-              style={styles.activityItem}
-              onPress={() => handleActivityClick(activity.key)}
-            >
-              <Image 
-                source={{ uri: '이미지url' }}
-                style={styles.activityImage} 
-              />
+            <TouchableOpacity style={styles.activityItem} onPress={() => handleActivityClick(activity)}>
+              <Image source={{ uri: activity.image }} style={styles.activityImage} />
               <View style={styles.activityDetails}>
-                <Text style={styles.activitySubtitle}>{activity.date}</Text>
+                <Text style={styles.activitySubtitle}>{activity.name}</Text>
                 <Text style={styles.activityTitle}>{activity.distance}</Text>
                 <Text style={styles.activitySubtitle}>
                   {activity.kcal} | {activity.time}
                 </Text>
               </View>
-              <Icon
-                name="chevron-forward-outline"
-                size={24}
-                color="#000"
-                style={styles.arrowIcon}
-              />
+              <Icon name="chevron-forward-outline" size={24} color="#000" style={styles.arrowIcon} />
             </TouchableOpacity>
-            {index < activities.length - 1 && <View style={styles.separator} />}
+            {activity.key < 3 && <View style={styles.separator} />}
           </View>
         ))}
       </View>

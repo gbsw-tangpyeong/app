@@ -15,7 +15,6 @@ export default function LoginMainPage() {
 
   return (
     <View style={styles.container}>
-      {/* 로고 이미지 삽입 */}
       <Image 
         source={{ uri: 'https://via.placeholder.com/150' }}
         style={styles.logo}
@@ -28,8 +27,6 @@ export default function LoginMainPage() {
         >
           <Text style={styles.loginButtonText}>로그인</Text>
         </TouchableOpacity>
-
-        <View style={styles.separator} />
 
         <TouchableOpacity
           style={styles.signupButtonWrapper}
@@ -48,7 +45,7 @@ export default function LoginMainPage() {
           <TouchableOpacity style={[styles.snsButton, { backgroundColor: '#DB4437' }]}>
             <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Google_icon.png' }} style={styles.snsIcon} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.snsButton, { backgroundColor: '#1DA1F2' }]}>
+          <TouchableOpacity style={[styles.snsButton, { backgroundColor: '#000000' }]}>
             <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Twitter_Logo_2021.svg' }} style={styles.snsIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.snsButton, { backgroundColor: '#4267B2' }]}>
@@ -78,7 +75,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingTop: 50,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -98,11 +95,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#ddd',
-    marginVertical: 10,
   },
   separatorWithText: {
     flexDirection: 'row',

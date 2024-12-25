@@ -11,23 +11,23 @@ export default function SearchScreen({ navigation }: ProfileScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const runningCourses = [
-    { key: 1, name: '한강 코스', distance: '5 km', kcal: '300 kcal', time: '11.11 km/hr', image: 'image1.jpg' },
-    { key: 2, name: '올림픽 공원 코스', distance: '7 km', kcal: '400 kcal', time: '11.12 km/hr', image: 'image2.jpg' },
-    { key: 3, name: '북한산 둘레길', distance: '10 km', kcal: '600 kcal', time: '11.13 km/hr', image: 'image3.jpg' },
-    { key: 4, name: '남산 순환로', distance: '8 km', kcal: '500 kcal', time: '11.10 km/hr', image: 'image4.jpg' },
-    { key: 5, name: '경복궁 코스', distance: '4 km', kcal: '250 kcal', time: '11.05 km/hr', image: 'image5.jpg' },
-    { key: 6, name: '한남대교 코스', distance: '6 km', kcal: '350 kcal', time: '11.08 km/hr', image: 'image6.jpg' },
-    { key: 7, name: '서울숲 코스', distance: '5.5 km', kcal: '320 kcal', time: '11.06 km/hr', image: 'image7.jpg' },
-    { key: 8, name: '종로 코스', distance: '7.5 km', kcal: '430 kcal', time: '11.12 km/hr', image: 'image8.jpg' },
-    { key: 9, name: '청계천 코스', distance: '6.5 km', kcal: '380 kcal', time: '11.07 km/hr', image: 'image9.jpg' },
-    { key: 10, name: '서울시청 코스', distance: '8.5 km', kcal: '490 kcal', time: '11.09 km/hr', image: 'image10.jpg' },
+    { key: 1, name: '한강 코스', distance: '5 km', kcal: '300 kcal', time: '27분', image: 'image1.jpg' },
+    { key: 2, name: '올림픽 공원 코스', distance: '7 km', kcal: '400 kcal', time: '38분', image: 'image2.jpg' },
+    { key: 3, name: '북한산 둘레길', distance: '10 km', kcal: '600 kcal', time: '53분', image: 'image3.jpg' },
+    { key: 4, name: '남산 순환로', distance: '8 km', kcal: '500 kcal', time: '43분', image: 'image4.jpg' },
+    { key: 5, name: '경복궁 코스', distance: '4 km', kcal: '250 kcal', time: '22분', image: 'image5.jpg' },
+    { key: 6, name: '한남대교 코스', distance: '6 km', kcal: '350 kcal', time: '33분', image: 'image6.jpg' },
+    { key: 7, name: '서울숲 코스', distance: '5.5 km', kcal: '320 kcal', time: '30분', image: 'image7.jpg' },
+    { key: 8, name: '종로 코스', distance: '7.5 km', kcal: '430 kcal', time: '40분', image: 'image8.jpg' },
+    { key: 9, name: '청계천 코스', distance: '6.5 km', kcal: '380 kcal', time: '35분', image: 'image9.jpg' },
+    { key: 10, name: '서울시청 코스', distance: '8.5 km', kcal: '490 kcal', time: '46분', image: 'image10.jpg' },
   ];
 
   const filteredCourses = runningCourses.filter(course =>
     course.name.includes(searchQuery)
   );
 
-  const handleCourseClick = (course) => {
+  const handleCourseClick = (course: { key: number; name: string; distance: string; kcal: string; time: string; image: string; }) => {
     navigation.navigate('CourseDetail', { course });
   };
 

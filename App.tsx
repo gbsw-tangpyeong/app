@@ -8,11 +8,13 @@ import Navigation from './Page/Navigation';
 import SettingPage from './Page/SettingPage';
 import GoalSettingPage from './Page/GoalSettingPage';
 import CourseDetailScreen from './components/CourseDetailScreen';
+import AllActivitiesScreen from './components/AllActivitiesScreen';
+import ActivitiesDetailScreen from './components/ActivitiesDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   return (
     <NavigationContainer>
@@ -26,6 +28,8 @@ export default function App() {
             <Stack.Screen name="SettingPage" component={SettingPage} />
             <Stack.Screen name="GoalSettingPage" component={GoalSettingPage} />
             <Stack.Screen name="CourseDetail" component={CourseDetailScreen} />
+            <Stack.Screen name="AllActivities" component={AllActivitiesScreen} />
+            <Stack.Screen name="ActivitiesDetailScreen" component={ActivitiesDetailScreen} />
           </Stack.Group>
         ) : (
           <Stack.Group screenOptions={{ headerShown: false }}>

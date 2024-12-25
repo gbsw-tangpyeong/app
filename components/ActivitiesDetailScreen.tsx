@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export default function CourseDetailScreen({ route }) {
-  const navigation = useNavigation(); 
-  const { course } = route.params;
+
+export default function ActivitiesDetailScreen({ route }) {
+  const navigation = useNavigation();
+  const { activity } = route.params;
 
   const handleStart = () => {
-    console.log('시작하기 버튼이 눌렸습니다!');
+    console.log('다시시작 버튼');
   };
 
   return (
@@ -15,17 +16,17 @@ export default function CourseDetailScreen({ route }) {
       <View style={styles.scrollView}>
         <View style={styles.contentContainer}>
           <Image
-            source={{ uri: course.image }}
-            style={styles.courseImage}
+            source={{ uri: activity.image }}
+            style={styles.activityImage}
           />
           <View style={styles.infoContainer}>
-            <Text style={styles.courseTitle}>{course.name}</Text>
-            <Text style={styles.courseDetail}>거리: {course.distance}</Text>
-            <Text style={styles.courseDetail}>시간: {course.time}</Text>
-            <Text style={styles.courseDetail}>소모 칼로리: {course.kcal}</Text>
+            <Text style={styles.activityTitle}>{activity.name}</Text>
+            <Text style={styles.activityDetail}>거리: {activity.distance}</Text>
+            <Text style={styles.activityDetail}>시간: {activity.time}</Text>
+            <Text style={styles.activityDetail}>소모 칼로리: {activity.kcal}</Text>
           </View>
           <TouchableOpacity style={styles.startButton} onPress={handleStart}>
-            <Text style={styles.startButtonText}>시작하기</Text>
+            <Text style={styles.startButtonText}>다시 달리기</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
             <Text style={styles.cancelButtonText}>취소</Text>
@@ -53,25 +54,25 @@ const styles = StyleSheet.create({
     padding: 16,
     elevation: 5,
   },
-  courseImage: {
+  activityImage: {
     width: '100%',
-    height: 250, // 높이를 약간 증가
+    height: 250, // 이미지 크기 조정
     resizeMode: 'cover',
     borderRadius: 10,
     backgroundColor: '#6d6d6d',
-    marginBottom: 50,
+    marginBottom: 30, // 이미지와 텍스트 간격
   },
   infoContainer: {
     marginBottom: 30,
   },
-  courseTitle: {
+  activityTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 30,
+    marginBottom: 20,
     textAlign: 'center',
   },
-  courseDetail: {
+  activityDetail: {
     fontSize: 18,
     color: '#666',
     marginBottom: 8,

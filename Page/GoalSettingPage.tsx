@@ -16,10 +16,19 @@ type ProfileScreenProps = {
 const GoalSettingPage = ({ route, navigation }: ProfileScreenProps) => {
   const { goal, setWeeklyGoal } = route.params;
   const [newGoal, setNewGoal] = useState(goal);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = () => {
-    setWeeklyGoal(newGoal);
-    navigation.goBack();
+    setWeeklyGoal(newGoal); // 정보를 저장
+    navigation.navigate('Home'); // "저장" 버튼 클릭 시 Home으로 이동
+  };
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing); // 수정 상태 토글
+  };
+
+  const handleGoalChange = (text: string) => {
+    setNewGoal(Number(text)); // 숫자 변경
   };
 
   return (
@@ -31,7 +40,7 @@ const GoalSettingPage = ({ route, navigation }: ProfileScreenProps) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>목표 설정</Text>
         <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveText}>저장</Text>
+          <Text style={styles.saveText}>저장</Text> {/* 항상 "저장" 버튼 */}
         </TouchableOpacity>
       </View>
 
@@ -43,11 +52,22 @@ const GoalSettingPage = ({ route, navigation }: ProfileScreenProps) => {
         <View style={styles.infoBox}>
           <Icon name="walk-outline" size={50} color="#5D63D1" style={styles.icon} />
           <View style={styles.infoTextBox}>
-            <Text style={styles.goalText}>{goal}</Text>
-            <Text style={styles.kmText}>km</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.goalInput}
+                keyboardType="numeric"
+                value={String(newGoal)}
+                onChangeText={handleGoalChange}
+              />
+            ) : (
+              <>
+                <Text style={styles.goalText}>{newGoal}</Text>
+                <Text style={styles.kmText}>km</Text>
+              </>
+            )}
           </View>
-          <TouchableOpacity>
-            <Text style={styles.editText}>수정</Text>
+          <TouchableOpacity onPress={handleEditToggle}>
+            <Text style={styles.editText}>{isEditing ? '완료' : '수정'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -72,7 +92,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingVertical: 20, // 패딩 상단 추가
     paddingHorizontal: 20,
     backgroundColor: '#F3F7FF',
   },
@@ -132,13 +152,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'gray',
   },
+  goalInput: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: 'black',
+    textAlign: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    padding: 5,
+    width: '60%',
+  },
   editText: {
+    fontSize: 18,
     color: '#5D63D1',
     fontWeight: 'bold',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center', // 중앙 정렬
     marginBottom: 10,
     color: 'black',
   },

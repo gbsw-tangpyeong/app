@@ -3,7 +3,7 @@ import { StyleSheet, View, Alert, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 
-const App = () => {
+const Map = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const webViewRef = useRef<WebView | null>(null);
 
@@ -52,7 +52,7 @@ const App = () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kakao Map</title>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey="></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8e75bfee64dd441633bbc374edecf952"></script>
     <style>
       html, body { margin: 0; padding: 0; height: 100%; }
       #map { width: 100%; height: 100%; position: relative; }
@@ -133,4 +133,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Map;

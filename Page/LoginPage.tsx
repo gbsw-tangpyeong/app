@@ -16,15 +16,16 @@ interface LoginPageProps {
 
 export default function LoginPage({ setIsLoggedIn }: LoginPageProps) {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [email, setEmail] = useState<string>('');
+  const [id, setId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState('');
 
   const handleLogin = () => {
-    if (email && password) {
-      console.log('로그인 시도:', email, password);
+    if (id && password) {
+      console.log('로그인 시도:', id, password);
       setIsLoggedIn(true);
-    } else {
-      console.log('이메일 또는 비밀번호를 입력해주세요.');
+    } else if (id == ''|| password == ''){
+      setError('아이디와 비밀번호를 입력해주세요');
     }
   };
 
@@ -33,10 +34,9 @@ export default function LoginPage({ setIsLoggedIn }: LoginPageProps) {
       <View style={styles.authButtonWrapper}>
         <TextInput
           style={styles.input}
-          placeholder="이메일"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
+          placeholder="아이디"
+          value={id}
+          onChangeText={setId}
         />
 
         <TextInput
@@ -47,17 +47,18 @@ export default function LoginPage({ setIsLoggedIn }: LoginPageProps) {
           secureTextEntry
         />
 
+        {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+
         <TouchableOpacity style={styles.loginButtonWrapper} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>로그인</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => { /* 비밀번호 찾기 기능 추가 */ }}>
+        <TouchableOpacity onPress={() => { }}>
           <Text style={styles.forgotPasswordText}>비밀번호를 잊으셨나요?</Text>
         </TouchableOpacity>
 
         <View style={styles.separatorWithText}>
-          <Text style={styles.orText}>회원가입이 아직 없으신가요?</Text>
-
+          <Text style={styles.orText}>계정이 없으신가요?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignupPage')}>
             <Text style={styles.signupLink}>회원가입</Text>
           </TouchableOpacity>
@@ -96,6 +97,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingLeft: 10,
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   loginButtonWrapper: {
     marginBottom: 15,

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 // 내비게이션 타입 정의
 type RootStackParamList = {
@@ -10,7 +11,8 @@ type RootStackParamList = {
 };
 
 export default function SignupPage() {
-  // 상태 변수 설정
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [id, setId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,14 +20,12 @@ export default function SignupPage() {
 
   // 회원가입 버튼 클릭 처리 함수
   const handleSignup = () => {
-    if (email === '' || password === '' || confirmPassword === '') {
+    if (id == '' || email === '' || password === '' || confirmPassword === '') {
       setError('모든 필드를 입력해주세요');
     } else if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다');
     } else {
-      // 회원가입 처리 로직 (예: API 호출)
       setError('');
-      // 회원가입 후 추가 동작
       alert('회원가입 완료!');
     }
   };
@@ -33,7 +33,12 @@ export default function SignupPage() {
   return (
     <View style={styles.container}>
       <View style={styles.authButtonWrapper}>
-        {/* 이메일 입력 */}
+      <TextInput
+          style={styles.input}
+          placeholder="아이디"
+          value={id}
+          onChangeText={setId}
+        />
         <TextInput
           style={styles.input}
           placeholder="이메일"
@@ -41,7 +46,6 @@ export default function SignupPage() {
           onChangeText={setEmail}
           keyboardType="email-address"
         />
-        {/* 비밀번호 입력 */}
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
@@ -49,7 +53,6 @@ export default function SignupPage() {
           onChangeText={setPassword}
           secureTextEntry
         />
-        {/* 비밀번호 확인 입력 */}
         <TextInput
           style={styles.input}
           placeholder="비밀번호 확인"
@@ -58,18 +61,18 @@ export default function SignupPage() {
           secureTextEntry
         />
 
-        {/* 에러 메시지 */}
         {error !== '' && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* 회원가입 버튼 */}
         <TouchableOpacity style={styles.signupButtonWrapper} onPress={handleSignup}>
           <Text style={styles.signupButtonText}>회원가입</Text>
         </TouchableOpacity>
 
-        <View style={styles.separator} />
-
-        {/* 로그인 페이지로 이동하는 버튼 */}
-        <Text style={styles.loginText}>이미 계정이 있으신가요? <Text style={styles.loginLinkText}>로그인</Text></Text>
+        <View style={styles.separatorWithText}>
+          <Text style={styles.orText}>이미 계정이 있으신가요? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('LoginPage')}>
+            <Text style={styles.LoginLink}>로그인</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -123,18 +126,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  separator: {
-    height: 1,
-    backgroundColor: '#ddd',
-    marginVertical: 10,
+  separatorWithText: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
-  loginText: {
+  orText: {
     fontSize: 14,
     color: '#888',
+    fontWeight: 'bold',
+    paddingHorizontal: 10,
+  },
+  LoginLink: {
+    fontSize: 14,
+    color: '#5D63D1',
     textAlign: 'center',
     fontWeight: 'bold',
-  },
-  loginLinkText: {
-    color: '#5D63D1',
   },
 });

@@ -52,7 +52,7 @@ const Map = () => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kakao Map</title>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey="></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={api}"></script>
     <style>
       html, body { margin: 0; padding: 0; height: 100%; }
       #map { width: 100%; height: 100%; position: relative; }

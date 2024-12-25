@@ -1,29 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { NavigationProp } from '@react-navigation/native';
 
-export default function SearchScreen() {
+type ProfileScreenProps = {
+  navigation: NavigationProp<any>;
+};
+
+export default function SearchScreen({ navigation }: ProfileScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const runningCourses = [
-    { key: 1, name: '한강 코스', distance: '5 km', kcal: '300 kcal', time: '11.11 km/hr' },
-    { key: 2, name: '올림픽 공원 코스', distance: '7 km', kcal: '400 kcal', time: '11.12 km/hr' },
-    { key: 3, name: '북한산 둘레길', distance: '10 km', kcal: '600 kcal', time: '11.13 km/hr' },
-    { key: 4, name: '남산 순환로', distance: '8 km', kcal: '500 kcal', time: '11.10 km/hr' },
-    { key: 5, name: '경복궁 코스', distance: '4 km', kcal: '250 kcal', time: '11.05 km/hr' },
-    { key: 6, name: '한남대교 코스', distance: '6 km', kcal: '350 kcal', time: '11.08 km/hr' },
-    { key: 7, name: '서울숲 코스', distance: '5.5 km', kcal: '320 kcal', time: '11.06 km/hr' },
-    { key: 8, name: '종로 코스', distance: '7.5 km', kcal: '430 kcal', time: '11.12 km/hr' },
-    { key: 9, name: '청계천 코스', distance: '6.5 km', kcal: '380 kcal', time: '11.07 km/hr' },
-    { key: 10, name: '서울시청 코스', distance: '8.5 km', kcal: '490 kcal', time: '11.09 km/hr' },
+    { key: 1, name: '한강 코스', distance: '5 km', kcal: '300 kcal', time: '11.11 km/hr', image: 'image1.jpg' },
+    { key: 2, name: '올림픽 공원 코스', distance: '7 km', kcal: '400 kcal', time: '11.12 km/hr', image: 'image2.jpg' },
+    { key: 3, name: '북한산 둘레길', distance: '10 km', kcal: '600 kcal', time: '11.13 km/hr', image: 'image3.jpg' },
+    { key: 4, name: '남산 순환로', distance: '8 km', kcal: '500 kcal', time: '11.10 km/hr', image: 'image4.jpg' },
+    { key: 5, name: '경복궁 코스', distance: '4 km', kcal: '250 kcal', time: '11.05 km/hr', image: 'image5.jpg' },
+    { key: 6, name: '한남대교 코스', distance: '6 km', kcal: '350 kcal', time: '11.08 km/hr', image: 'image6.jpg' },
+    { key: 7, name: '서울숲 코스', distance: '5.5 km', kcal: '320 kcal', time: '11.06 km/hr', image: 'image7.jpg' },
+    { key: 8, name: '종로 코스', distance: '7.5 km', kcal: '430 kcal', time: '11.12 km/hr', image: 'image8.jpg' },
+    { key: 9, name: '청계천 코스', distance: '6.5 km', kcal: '380 kcal', time: '11.07 km/hr', image: 'image9.jpg' },
+    { key: 10, name: '서울시청 코스', distance: '8.5 km', kcal: '490 kcal', time: '11.09 km/hr', image: 'image10.jpg' },
   ];
 
   const filteredCourses = runningCourses.filter(course =>
     course.name.includes(searchQuery)
   );
 
-  const handleCourseClick = (key: number) => {
-    console.log(`코스 클릭: ${key}`);
+  const handleCourseClick = (course) => {
+    navigation.navigate('CourseDetail', { course });
   };
 
   return (
@@ -40,14 +45,14 @@ export default function SearchScreen() {
       </View>
 
       <ScrollView style={styles.courseWrapper}>
-        {filteredCourses.map((item, index) => (   
+        {filteredCourses.map((item) => (
           <TouchableOpacity
             key={item.key}
             style={styles.courseItem}
-            onPress={() => handleCourseClick(item.key)}
+            onPress={() => handleCourseClick(item)}
           >
             <Image
-              source={{ uri: '이미지url' }}
+              source={{ uri: item.image }}
               style={styles.courseImage}
             />
             <View style={styles.courseDetails}>
@@ -67,6 +72,7 @@ export default function SearchScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

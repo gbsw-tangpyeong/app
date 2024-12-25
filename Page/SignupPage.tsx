@@ -1,77 +1,140 @@
-import * as React from "react";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Button, View, Text } from "react-native";
-import { useEffect } from "react";
+import React, { useState } from 'react';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-// 로그인 버튼 누르면 웹 브라우저가 열리고, 구글 로그인 페이지로 이동함.
-WebBrowser.maybeCompleteAuthSession();
-export default function App() {
-  // 안드로이드, 웹 클라이언트 아이디를 사용하여 인증 요청 보냄.
-  // Google 인증 요청을 위한 훅 초기화
-  // promptAsync: 인증 요청 보냄.
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: "아까 웹 클라이언트 아이디",
-    androidClientId: "아까 안드로이드 클라이언트 아이디",
-  });
+// 내비게이션 타입 정의
+type RootStackParamList = {
+  LoginMain: undefined;
+  LoginPage: undefined;
+  SignupPage: undefined;
+  Home: undefined;
+};
 
-  const [userInfo, setUserInfo] = React.useState(null);
+export default function SignupPage() {
+  // 상태 변수 설정
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
-  // Google 로그인 처리하는 함수
-  const handleSignInWithGoogle = async () => {
-    const user = await AsyncStorage.getItem("@user");
-    if (!user) {
-      if (response?.type === "success") {
-        // 인증 요청에 대한 응답이 성공이면, 토큰을 이용하여 유저 정보를 가져옴.
-        await getUserInfo(response.authentication?.accessToken);
-      }
+  // 회원가입 버튼 클릭 처리 함수
+  const handleSignup = () => {
+    if (email === '' || password === '' || confirmPassword === '') {
+      setError('모든 필드를 입력해주세요');
+    } else if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다');
     } else {
-      // 유저 정보가 이미 있으면, 유저 정보를 가져옴.
-      setUserInfo(JSON.parse(user));
+      // 회원가입 처리 로직 (예: API 호출)
+      setError('');
+      // 회원가입 후 추가 동작
+      alert('회원가입 완료!');
     }
   };
-
-  // 토큰을 이용하여 유저 정보를 가져오는 함수
-  const getUserInfo = async (token: string | undefined) => {
-    if (!token) return;
-    try {
-      const response = await fetch(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const userInfoResponse = await response.json();
-      // 유저 정보를 AsyncStorage에 저장, 상태업뎃
-      await AsyncStorage.setItem("@user", JSON.stringify(userInfoResponse));
-      setUserInfo(userInfoResponse);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem("@user");
-    setUserInfo(null);
-  };
-
-  // Google 인증 응답이 바뀔때마다 실행
-  useEffect(() => {
-    handleSignInWithGoogle();
-  }, [response]);
 
   return (
-    <View>
-      <Text>{JSON.stringify(userInfo, null, 2)}</Text>
-      <Button
-        disabled={!request}
-        title="Login"
-        onPress={() => {
-          promptAsync();
-        }}
-      />
-      <Button title="logout" onPress={() => handleLogout()} />
+    <View style={styles.container}>
+      <View style={styles.authButtonWrapper}>
+        {/* 이메일 입력 */}
+        <TextInput
+          style={styles.input}
+          placeholder="이메일"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
+        {/* 비밀번호 입력 */}
+        <TextInput
+          style={styles.input}
+          placeholder="비밀번호"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        {/* 비밀번호 확인 입력 */}
+        <TextInput
+          style={styles.input}
+          placeholder="비밀번호 확인"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
+
+        {/* 에러 메시지 */}
+        {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+
+        {/* 회원가입 버튼 */}
+        <TouchableOpacity style={styles.signupButtonWrapper} onPress={handleSignup}>
+          <Text style={styles.signupButtonText}>회원가입</Text>
+        </TouchableOpacity>
+
+        <View style={styles.separator} />
+
+        {/* 로그인 페이지로 이동하는 버튼 */}
+        <Text style={styles.loginText}>이미 계정이 있으신가요? <Text style={styles.loginLinkText}>로그인</Text></Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F3F7FF', // 배경색
+    padding: 20,
+  },
+  authButtonWrapper: {
+    backgroundColor: '#fff', // 전체 컨테이너 배경을 하얀색으로
+    borderRadius: 8,
+    paddingTop: 50,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+    width: 350,
+  },
+  input: {
+    height: 45,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingLeft: 10,
+    fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  signupButtonWrapper: {
+    backgroundColor: '#5D63D1',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  signupButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 10,
+  },
+  loginText: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  loginLinkText: {
+    color: '#5D63D1',
+  },
+});

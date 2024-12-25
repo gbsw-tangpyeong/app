@@ -1,17 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { NavigationProp } from '@react-navigation/native';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 
 type ProfileScreenProps = {
   navigation: NavigationProp<any>;
+  route: RouteProp<any, '프로필'>; // '프로필' 스크린에 대한 route 타입을 설정
 };
 
-export default function ProfileScreen({ navigation }: ProfileScreenProps) {
+export default function ProfileScreen({ navigation, route }: ProfileScreenProps) {
+  const { setLoggedIn } = route.params;
+
+  const handleLogout = () => {
+    setLoggedIn(false); // 로그아웃 상태로 변경
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.statusBar} />
-
       <View style={styles.profileContainer}>
         <TouchableOpacity style={styles.editButton} onPress={() => console.log('수정 버튼 클릭')}>
           <Icon name="create-outline" size={24} color="#ffffff" />
@@ -81,13 +87,21 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
           <Text style={styles.optionText}>고객센터</Text>
           <Icon name="chevron-forward-outline" size={20} color="#666" style={styles.arrowIcon} />
         </TouchableOpacity>
+        <View style={styles.separator} />
+        <TouchableOpacity
+          onPress={handleLogout} // 이 부분을 수정하여 로그아웃 처리
+          style={[styles.optionContainer]}>
+          <Icon name="log-out-outline" size={24} color="#ff0000" />
+          <Text style={[styles.optionText, { color: '#ff0000' }]}>로그아웃</Text>
+          <Icon name="chevron-forward-outline" size={20} color="#ff0000" style={styles.arrowIcon} />
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // 컨테이너
+  // 스타일 정의...
   container: {
     flex: 1,
     backgroundColor: '#F3F7FF',
@@ -97,7 +111,6 @@ const styles = StyleSheet.create({
     height: 20,
     backgroundColor: '#F3F7FF',
   },
-  // 프로필 칸
   profileContainer: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -136,7 +149,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'white',
   },
-  // 토탈 박스
   outerTotalBox: {
     backgroundColor: '#F3F7FF', // 새로운 박스 색상
     borderRadius: 10,
@@ -169,7 +181,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginRight: 10,
   },
-  // 통계 항목
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -200,14 +211,16 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5
   },
-  // 설정 옵션 박스
   settingsOptionsBox: {
     backgroundColor: 'white',
     borderRadius: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
     paddingLeft: 16,
     paddingRight: 16,
-    shadowColor: '#000',
+    height: 370,
     bottom: 40,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,

@@ -1,102 +1,95 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View, Alert, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Location from 'expo-location';
 
-const Map: React.FC = () => {
+const App = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const webViewRef = useRef<WebView>(null);
+  const webViewRef = useRef<WebView | null>(null);
 
   useEffect(() => {
-    const getLocation = async () => {
+    const requestLocationPermission = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('위치 권한이 거부되었습니다.');
         return;
       }
 
-      const locationWatcher = await Location.watchPositionAsync(
+      // 위치 업데이트 구독 시작
+      const locationSubscription = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.High,
-          distanceInterval: 10, // Update every 10 meters
+          accuracy: Location.Accuracy.High, // 높은 정확도 설정
+          timeInterval: 1000, // 1초마다 위치 업데이트
+          distanceInterval: 1, // 1미터 이상 이동 시 업데이트
         },
-        (userLocation) => {
-          setLocation({
-            latitude: userLocation.coords.latitude,
-            longitude: userLocation.coords.longitude,
-          });
+        (newLocation) => {
+          const { latitude, longitude } = newLocation.coords;
+          setLocation({ latitude, longitude });
         }
       );
 
-      return () => locationWatcher.remove();
+      // 컴포넌트 언마운트 시 위치 업데이트 구독 해제
+      return () => {
+        locationSubscription.remove();
+      };
     };
 
-    getLocation();
+    requestLocationPermission();
   }, []);
 
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Kakao Map</title>
-      <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=&libraries=services"></script>
-      <style>
-        html, body { margin: 0; padding: 0; height: 100%; }
-        #map { width: 100%; height: 100%; }
-      </style>
-    </head>
-    <body>
-      <div id="map"></div>
-      <script>
-        let map;
-        let marker = null;
-
-        window.onload = function() {
-          const container = document.getElementById('map');
-          const options = {
-            center: new kakao.maps.LatLng(33.450701, 126.570667), // 기본 중심
-            level: 3
-          };
-          map = new kakao.maps.Map(container, options);
-
-          window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'mapLoaded' }));
-
-          window.updateMarker = function(latitude, longitude) {
-            const position = new kakao.maps.LatLng(latitude, longitude);
-            if (!marker) {
-              marker = new kakao.maps.Marker({
-                position,
-                map,
-              });
-            } else {
-              marker.setPosition(position);
-            }
-            map.setCenter(position);
-          };
-        };
-      </script>
-    </body>
-    </html>
-  `;
-
-  const handleWebViewMessage = (event: any) => {
-    const message = JSON.parse(event.nativeEvent.data);
-    if (message.event === 'mapLoaded' && location) {
-      const { latitude, longitude } = location;
-      const jsCode = `updateMarker(${latitude}, ${longitude});`;
-      webViewRef.current?.injectJavaScript(jsCode);
-    }
-  };
-
   useEffect(() => {
-    if (location) {
+    if (location && webViewRef.current) {
       const { latitude, longitude } = location;
       const jsCode = `updateMarker(${latitude}, ${longitude});`;
-      webViewRef.current?.injectJavaScript(jsCode);
+      webViewRef.current.injectJavaScript(jsCode);
     }
   }, [location]);
+
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kakao Map</title>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey="></script>
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; }
+      #map { width: 100%; height: 100%; position: relative; }
+      #marker { position: absolute; width: 20px; height: 20px; background-color: red; border-radius: 50%; transform: translate(-50%, -50%); }
+    </style>
+  </head>
+  <body>
+    <div id="map">
+      <div id="marker"></div>
+    </div>
+    <script>
+      var map;
+      var markerElement = document.getElementById('marker');
+
+      function initMap() {
+        var container = document.getElementById('map');
+        var options = {
+          center: new kakao.maps.LatLng(37.5665, 126.9780),
+          level: 3
+        };
+        map = new kakao.maps.Map(container, options);
+      }
+
+      function updateMarker(latitude, longitude) {
+        var position = new kakao.maps.LatLng(latitude, longitude);
+        var projection = map.getProjection();
+        var point = projection.pointFromCoords(position);
+        markerElement.style.left = point.x + 'px';
+        markerElement.style.top = point.y + 'px';
+      }
+
+      window.onload = initMap;
+    </script>
+  </body>
+  </html>
+`;
+
 
   return (
     <View style={styles.container}>
@@ -106,8 +99,14 @@ const Map: React.FC = () => {
         source={{ html: htmlContent }}
         style={styles.webview}
         javaScriptEnabled
-        onMessage={handleWebViewMessage}
       />
+      {location && (
+        <View style={styles.locationContainer}>
+          <Text style={styles.locationText}>
+            현재 위치: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -119,6 +118,19 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
   },
+  locationContainer: {
+    position: 'absolute',
+    bottom: 50,
+    left: '50%',
+    transform: [{ translateX: -75 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  locationText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
 
-export default Map;
+export default App;

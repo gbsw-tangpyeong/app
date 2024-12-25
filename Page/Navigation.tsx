@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../components/Home';
 import Map from '../components/Map';
@@ -32,12 +32,14 @@ type TabParamList = {
   홈: undefined;
   '코스 검색': undefined;
   지도: undefined;
-  프로필: undefined;
+  프로필: { setLoggedIn: (value: boolean) => void }; // setLoggedIn을 프로필 화면에 전달
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const Navigation = () => {
+const Navigation = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => void }) => {
+  const [loggedIn, setLoggedIn] = useState(true); // 상태 관리
+
   return (
     <Tab.Navigator
       screenOptions={({ route }): BottomTabNavigationOptions => {
@@ -54,7 +56,12 @@ const Navigation = () => {
       <Tab.Screen name="홈" component={HomeScreen} options={{ headerShown: false }} />
       <Tab.Screen name="코스 검색" component={Search} options={{ headerShown: false }} />
       <Tab.Screen name="지도" component={Map} options={{ headerShown: false }} />
-      <Tab.Screen name="프로필" component={Profile} options={{ headerShown: false }} />
+      <Tab.Screen
+        name="프로필"
+        component={Profile}
+        initialParams={{ setLoggedIn: setIsLoggedIn }} // setLoggedIn을 프로필 화면에 전달
+        options={{ headerShown: false }}
+      />
     </Tab.Navigator>
   );
 };

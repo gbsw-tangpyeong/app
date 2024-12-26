@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { Signup_API } from '@env';
 import axios from 'axios';
 
 
@@ -37,9 +38,7 @@ export default function SignupPage() {
           phone: phone,
           address: '',
         };
-  
-        // 백엔드 API 엔드포인트
-        const apiUrl = process.env.Signup_API;
+        const apiUrl = Signup_API;
   
         // Axios POST 요청
         const response = await axios.post(apiUrl, data, {

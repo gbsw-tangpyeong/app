@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, Alert, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
-import * as Location from 'expo-location';
+import * as Location from 'expo-location'
 import { KakaoMap_API } from '@env';
 
 const Map = () => {
@@ -15,28 +15,41 @@ const Map = () => {
         Alert.alert('위치 권한이 거부되었습니다.');
         return;
       }
-
-      // 위치 업데이트 구독 시작
+  
       const locationSubscription = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.High, // 높은 정확도 설정
-          timeInterval: 1000, // 1초마다 위치 업데이트
-          distanceInterval: 1, // 1미터 이상 이동 시 업데이트
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1,
         },
         (newLocation) => {
-          const { latitude, longitude } = newLocation.coords;
-          setLocation({ latitude, longitude });
+          const { latitude, longitude, accuracy } = newLocation.coords;
+          if (accuracy <= 20) { // 정확도가 20미터 이하인 경우에만 업데이트
+            setLocation({ latitude, longitude });
+          }
         }
       );
-
-      // 컴포넌트 언마운트 시 위치 업데이트 구독 해제
+  
       return () => {
         locationSubscription.remove();
       };
     };
-
+  
     requestLocationPermission();
   }, []);
+  
+  useEffect(() => {
+    if (location && webViewRef.current) {
+      const { latitude, longitude } = location;
+      const jsCode = `
+        updateMarker(${latitude}, ${longitude});
+        moveMapTo(${latitude}, ${longitude});
+      `;
+      webViewRef.current.injectJavaScript(jsCode);
+    }
+  }, [location]);
+  
+  
 
   useEffect(() => {
     if (location && webViewRef.current) {
@@ -65,34 +78,43 @@ const Map = () => {
       <div id="marker"></div>
     </div>
     <script>
-      console.log("카카오맵 로딩 시작...");
       var map;
-      var markerElement = document.getElementById('marker');
+      var marker;
 
       function initMap() {
-        try {
-          var container = document.getElementById('map');
-          var options = {
-            center: new kakao.maps.LatLng(37.5665, 126.9780),
-            level: 3
-          };
-          map = new kakao.maps.Map(container, options);
-          console.log("카카오맵 초기화 성공");
-        } catch (error) {
-          console.error("카카오맵 초기화 오류:", error);
-        }
+        var container = document.getElementById('map');
+        var options = {
+          center: new kakao.maps.LatLng(37.5665, 126.9780), // 초기 위치
+          level: 3,
+        };
+        map = new kakao.maps.Map(container, options);
+
+        // 초기 마커 생성
+        marker = new kakao.maps.Marker({
+          position: options.center,
+          map: map,
+        });
+
+        console.log("카카오맵 초기화 성공");
       }
 
       function updateMarker(latitude, longitude) {
         try {
           var position = new kakao.maps.LatLng(latitude, longitude);
-          var projection = map.getProjection();
-          var point = projection.pointFromCoords(position);
-          markerElement.style.left = point.x + 'px';
-          markerElement.style.top = point.y + 'px';
+          marker.setPosition(position); // 마커 위치 업데이트
           console.log("마커 위치 업데이트:", latitude, longitude);
         } catch (error) {
           console.error("마커 업데이트 오류:", error);
+        }
+      }
+
+      function moveMapTo(latitude, longitude) {
+        try {
+          var position = new kakao.maps.LatLng(latitude, longitude);
+          map.setCenter(position); // 지도 중심 이동
+          console.log("지도 중심 이동:", latitude, longitude);
+        } catch (error) {
+          console.error("지도 이동 오류:", error);
         }
       }
 

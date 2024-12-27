@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 
@@ -37,7 +37,10 @@ export default function ProfileScreen({ navigation, route }: ProfileScreenProps)
         <View style={styles.totalBox}>
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Icon name="walk" size={26} color="#666" style={styles.statIcon} />
+              <Image
+                source={require('../assets/imgs/달리기.png')}
+                style={styles.statImage}
+              />
               <View style={styles.statValueContainer}>
                 <Text style={styles.statValue}>103.2</Text>
                 <Text style={styles.statLabel}>km</Text>
@@ -45,7 +48,10 @@ export default function ProfileScreen({ navigation, route }: ProfileScreenProps)
             </View>
             <View style={styles.separatorVertical} />
             <View style={styles.statItem}>
-              <Icon name="time-outline" size={26} color="#666" style={styles.statIcon} />
+              <Image
+                source={require('../assets/imgs/시계.png')}
+                style={styles.statImage}
+              />
               <View style={styles.statValueContainer}>
                 <Text style={styles.statValue}>16.9</Text>
                 <Text style={styles.statLabel}>hr</Text>
@@ -53,7 +59,10 @@ export default function ProfileScreen({ navigation, route }: ProfileScreenProps)
             </View>
             <View style={styles.separatorVertical} />
             <View style={styles.statItem}>
-              <Icon name="flame-outline" size={26} color="#666" style={styles.statIcon} />
+              <Image
+                source={require('../assets/imgs/불.png')}
+                style={styles.statImage}
+              />
               <View style={styles.statValueContainer}>
                 <Text style={styles.statValue}>15.6</Text>
                 <Text style={styles.statLabel}>kcal</Text>
@@ -189,6 +198,11 @@ const styles = StyleSheet.create({
     width: 80,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  statImage: {
+    width: 24,
+    height: 30,
+    marginRight: 8,
   },
   statIcon: {
     marginRight: 5,

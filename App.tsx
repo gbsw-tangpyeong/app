@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginMainScreen from './Page/LoginMainPage';
 import LoginPage from './Page/LoginPage';
 import SignupPage from './Page/SignupPage';
-import Navigation from './Page/Navigation';
+import Navigation from './components/Navigation';
 import SettingPage from './Page/SettingPage';
 import GoalSettingPage from './Page/GoalSettingPage';
 import CourseDetailScreen from './components/CourseDetailScreen';

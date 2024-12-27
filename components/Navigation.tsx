@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../components/Home';
-import Map from '../components/Map';
-import Profile from '../components/Profile';
-import Search from '../components/Search';
+import HomeScreen from './Home';
+import Map from './Map';
+import Profile from './Profile';
+import Search from './Search';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 

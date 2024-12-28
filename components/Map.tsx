@@ -9,16 +9,8 @@ const Map = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [timer, setTimer] = useState(0);
-  const [distance, setDistance] = useState(0);
-  const [speed, setSpeed] = useState(0);
-  const [kcal, setKcal] = useState(0);
-  const [isRouteActive, setIsRouteActive] = useState(false);
-
   const webViewRef = useRef<WebView | null>(null);
   const locationSubscription = useRef<any>(null);
-
-  const SEOUL_CITY_HALL = { latitude: 37.5665, longitude: 126.9780 };
 
   const requestLocationPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -42,38 +34,39 @@ const Map = () => {
         distanceInterval: 1,
       },
       (newLocation) => {
-        const { latitude, longitude, accuracy } = newLocation.coords;
-        if (accuracy !== null && accuracy <= 20) {
-          const newCoord = { latitude, longitude };
-          setLocation(newCoord);
-
-          if (isRouteActive) {
-            webViewRef.current?.injectJavaScript(`
-              removeReachedRoute(${latitude}, ${longitude});
-            `);
-          }
+        const { latitude, longitude } = newLocation.coords;
+        const newCoord = { latitude, longitude };
+        setLocation(newCoord);
+        if (isRunning) {
+          setRouteCoordinates((prevCoords) => [...prevCoords, newCoord]);
         }
       }
     );
   };
 
-  const toggleRouteDrawing = () => {
-    if (!isRunning) {
-      setIsRunning(true);
-    } else {
-      setIsRunning(false);
-    }
-  };
+  useEffect(() => {
+    requestLocationPermission();
 
-  const drawRouteToCityHall = () => {
-    if (!location) {
-      Alert.alert('현재 위치를 가져오는 중입니다. 잠시 후 다시 시도하세요.');
-      return;
+    return () => {
+      if (locationSubscription.current) {
+        locationSubscription.current.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location && webViewRef.current) {
+      const { latitude, longitude } = location;
+      const jsCode = `
+        updateMarker(${latitude}, ${longitude});
+        moveMapTo(${latitude}, ${longitude});
+        ${isRunning ? `drawRoute(${JSON.stringify(routeCoordinates)});` : ''}`;
+      webViewRef.current.injectJavaScript(jsCode);
     }
-    setIsRouteActive(true);
-    webViewRef.current?.injectJavaScript(`
-      drawRouteToCityHall(${location.latitude}, ${location.longitude}, ${SEOUL_CITY_HALL.latitude}, ${SEOUL_CITY_HALL.longitude});
-    `);
+  }, [location, routeCoordinates, isRunning]);
+
+  const toggleRouteDrawing = () => {
+    setIsRunning((prev) => !prev);
   };
 
   const htmlContent = `
@@ -95,7 +88,6 @@ const Map = () => {
       var map;
       var marker;
       var polyline;
-      var routePath = [];
 
       function initMap() {
         var container = document.getElementById('map');
@@ -106,48 +98,33 @@ const Map = () => {
         map = new kakao.maps.Map(container, options);
       }
 
-      function drawRouteToCityHall(startLat, startLng, endLat, endLng) {
-        var start = new kakao.maps.LatLng(startLat, startLng);
-        var end = new kakao.maps.LatLng(endLat, endLng);
-
-        var directions = new kakao.maps.services.Directions();
-        directions.route({
-          origin: start,
-          destination: end,
-          waypoints: [],
-          travelMode: kakao.maps.services.TravelMode.WALKING,
-        }, function(result, status) {
-          if (status === kakao.maps.services.Status.OK) {
-            var path = result.routes[0].legs[0].steps.map(step => new kakao.maps.LatLng(step.startLocation.lat, step.startLocation.lng));
-            path.push(end);
-            routePath = path;
-
-            if (!polyline) {
-              polyline = new kakao.maps.Polyline({
-                path: routePath,
-                strokeWeight: 5,
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.7,
-                strokeStyle: 'solid',
-              });
-              polyline.setMap(map);
-            } else {
-              polyline.setPath(routePath);
-            }
-          }
-        });
+      function updateMarker(latitude, longitude) {
+        var position = new kakao.maps.LatLng(latitude, longitude);
+        if (!marker) {
+          marker = new kakao.maps.Marker({ position, map });
+        } else {
+          marker.setPosition(position);
+        }
       }
 
-      function removeReachedRoute(currentLat, currentLng) {
-        var currentPos = new kakao.maps.LatLng(currentLat, currentLng);
+      function moveMapTo(latitude, longitude) {
+        var position = new kakao.maps.LatLng(latitude, longitude);
+        map.setCenter(position);
+      }
 
-        routePath = routePath.filter(point => {
-          var distance = kakao.maps.geometry.spherical.computeDistanceBetween(currentPos, point);
-          return distance > 20; // 20m 이상 떨어진 점만 남김
-        });
-
-        if (polyline) {
-          polyline.setPath(routePath);
+      function drawRoute(coordinates) {
+        var path = coordinates.map(coord => new kakao.maps.LatLng(coord.latitude, coord.longitude));
+        if (!polyline) {
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.7,
+            strokeStyle: 'solid',
+          });
+          polyline.setMap(map);
+        } else {
+          polyline.setPath(path);
         }
       }
 
@@ -157,16 +134,6 @@ const Map = () => {
   </html>
   `;
 
-  useEffect(() => {
-    requestLocationPermission();
-
-    return () => {
-      if (locationSubscription.current) {
-        locationSubscription.current.remove();
-      }
-    };
-  }, []);
-
   return (
     <View style={styles.container}>
       <WebView
@@ -174,29 +141,17 @@ const Map = () => {
         originWhitelist={['*']}
         source={{ html: htmlContent }}
         style={styles.webview}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
+        javaScriptEnabled
+        domStorageEnabled
       />
-
-      <View style={styles.runningBox}>
-        <View style={styles.timerBox}>
-          <Text style={styles.timerTitle}>런닝 타임</Text>
-          <Text style={styles.timer}>{new Date(timer).toISOString().substr(11, 8)}</Text>
-          <Icon
-            name={isRunning ? 'pause' : 'play'}
-            size={30}
-            color="#ffffff"
-            onPress={toggleRouteDrawing}
-            style={styles.startPauseButton}
-          />
-          <Icon
-            name="navigate"
-            size={30}
-            color="#ffffff"
-            onPress={drawRouteToCityHall}
-            style={styles.startPauseButton}
-          />
-        </View>
+      <View style={styles.controlBox}>
+        <Icon
+          name={isRunning ? 'pause' : 'play'}
+          size={40}
+          color="#fff"
+          onPress={toggleRouteDrawing}
+          style={styles.controlButton}
+        />
       </View>
     </View>
   );
@@ -209,38 +164,16 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
   },
-  runningBox: {
+  controlBox: {
     position: 'absolute',
     bottom: 20,
-    left: 15,
-    right: 15,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    zIndex: 1,
-  },
-  timerBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  timerTitle: {
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  timer: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  startPauseButton: {
-    marginLeft: 10,
+    right: 20,
     backgroundColor: '#666dee',
+    borderRadius: 30,
     padding: 10,
-    borderRadius: 5,
+  },
+  controlButton: {
+    padding: 10,
   },
 });
 

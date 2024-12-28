@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { NavigationProp } from '@react-navigation/native';
 
@@ -15,58 +15,75 @@ type ProfileScreenProps = {
 
 const GoalSettingPage = ({ route, navigation }: ProfileScreenProps) => {
   const { goal, setWeeklyGoal } = route.params;
-  const [newGoal, setNewGoal] = useState(goal);
+  const [newGoal, setNewGoal] = useState(goal.toString());
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSave = () => {
-    setWeeklyGoal(newGoal); // 정보를 저장
-    navigation.navigate('Home'); // "저장" 버튼 클릭 시 Home으로 이동
-  };
+  // 각각 다른 스위치 상태
+  const [generalNotification, setGeneralNotification] = useState(false);
+  const [sound, setSound] = useState(false);
+  const [doNotDisturb, setDoNotDisturb] = useState(false);
+  const [vibrate, setVibrate] = useState(false);
+  const [lockScreen, setLockScreen] = useState(false);
+  const [reminders, setReminders] = useState(false);
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing); // 수정 상태 토글
+    if (isEditing && newGoal === '') {
+      setNewGoal('0');
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleSave = () => {
+    setWeeklyGoal(Number(newGoal));
+    navigation.navigate('Home');
   };
 
   const handleGoalChange = (text: string) => {
-    setNewGoal(Number(text)); // 숫자 변경
+    setNewGoal(text);
   };
 
   return (
     <View style={styles.container}>
-      {/* 고정 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>목표 설정</Text>
         <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveText}>저장</Text> {/* 항상 "저장" 버튼 */}
+          <Text style={styles.saveText}>저장</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* 제목 */}
-        <Text style={styles.pageTitle}>목표 설정</Text>
+        <Text style={styles.pageTitle}>현재 목표</Text>
 
-        {/* 중앙 View 박스 */}
         <View style={styles.infoBox}>
-          <Icon name="walk-outline" size={50} color="#5D63D1" style={styles.icon} />
           <View style={styles.infoTextBox}>
-            {isEditing ? (
-              <TextInput
-                style={styles.goalInput}
-                keyboardType="numeric"
-                value={String(newGoal)}
-                onChangeText={handleGoalChange}
+            {!isEditing && (
+              <Image
+                source={require('../assets/imgs/달리기.png')}
+                style={styles.statImage}
               />
-            ) : (
-              <>
-                <Text style={styles.goalText}>{newGoal}</Text>
-                <Text style={styles.kmText}>km</Text>
-              </>
             )}
+            <View style={styles.goalContainer}>
+              {isEditing ? (
+                <TextInput
+                  style={styles.goalInput}
+                  keyboardType="numeric"
+                  value={newGoal}
+                  onChangeText={handleGoalChange}
+                  autoFocus={true}
+                  maxLength={4}
+                />
+              ) : (
+                <>
+                  <Text style={styles.goalText}>{newGoal}</Text>
+                  <Text style={styles.kmText}>km</Text>
+                </>
+              )}
+            </View>
           </View>
-          <TouchableOpacity onPress={handleEditToggle}>
+          <TouchableOpacity onPress={handleEditToggle} style={styles.editButton}>
             <Text style={styles.editText}>{isEditing ? '완료' : '수정'}</Text>
           </TouchableOpacity>
         </View>
@@ -74,9 +91,60 @@ const GoalSettingPage = ({ route, navigation }: ProfileScreenProps) => {
         {/* 설정 섹션 */}
         <Text style={styles.sectionTitle}>설정</Text>
         <View style={styles.settingsBox}>
-          <Text style={styles.settingOption}>옵션 1</Text>
-          <Text style={styles.settingOption}>옵션 2</Text>
-          <Text style={styles.settingOption}>옵션 3</Text>
+          <View style={styles.settingOption}>
+            <Text style={styles.settingText}>General Notification</Text>
+            <Switch
+              value={generalNotification}
+              onValueChange={() => setGeneralNotification(!generalNotification)}
+              trackColor={{ false: '#ccc', true: '#5D63D1' }}
+              thumbColor={generalNotification ? '#ffffff' : '#f4f3f4'}
+            />
+          </View>
+          <View style={styles.settingOption}>
+            <Text style={styles.settingText}>Sound</Text>
+            <Switch
+              value={sound}
+              onValueChange={() => setSound(!sound)}
+              trackColor={{ false: '#ccc', true: '#5D63D1' }}
+              thumbColor={sound ? '#ffffff' : '#f4f3f4'}
+            />
+          </View>
+          <View style={styles.settingOption}>
+            <Text style={styles.settingText}>Do Not Disturb</Text>
+            <Switch
+              value={doNotDisturb}
+              onValueChange={() => setDoNotDisturb(!doNotDisturb)}
+              trackColor={{ false: '#ccc', true: '#5D63D1' }}
+              thumbColor={doNotDisturb ? '#ffffff' : '#f4f3f4'}
+            />
+          </View>
+          <View style={styles.settingOption}>
+            <Text style={styles.settingText}>Vibrate</Text>
+            <Switch
+              value={vibrate}
+              onValueChange={() => setVibrate(!vibrate)}
+              trackColor={{ false: '#ccc', true: '#5D63D1' }}
+              thumbColor={vibrate ? '#ffffff' : '#f4f3f4'}
+            />
+          </View>
+          <View style={styles.settingOption}>
+            <Text style={styles.settingText}>Lock Screen</Text>
+            <Switch
+              value={lockScreen}
+              onValueChange={() => setLockScreen(!lockScreen)}
+              trackColor={{ false: '#ccc', true: '#5D63D1' }}
+              thumbColor={lockScreen ? '#ffffff' : '#f4f3f4'}
+            />
+          </View>
+          <View style={[styles.settingOption, { borderBottomWidth: 0 }]}>
+            <Text style={styles.settingText}>Reminders</Text>
+            <Switch
+              value={reminders}
+              onValueChange={() => setReminders(!reminders)}
+              trackColor={{ false: '#ccc', true: '#5D63D1' }}
+              thumbColor={reminders ? '#ffffff' : '#f4f3f4'}
+            />
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -92,9 +160,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 20, // 패딩 상단 추가
+    paddingTop: 30,
+    paddingVertical: 20,
     paddingHorizontal: 20,
-    backgroundColor: '#F3F7FF',
+    backgroundColor: '#ffffff',
   },
   backButton: {
     flexDirection: 'row',
@@ -104,6 +173,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: 'black',
+    marginLeft: 23,
   },
   saveButton: {
     padding: 10,
@@ -116,10 +186,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   pageTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 20,
+    marginVertical: 15,
     color: 'black',
   },
   infoBox: {
@@ -127,7 +197,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'white',
-    padding: 20,
+    padding: 15,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -136,15 +206,21 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginVertical: 20,
   },
-  icon: {
-    marginRight: 10,
+  statImage: {
+    width: 50,
+    height: 50,
+    marginRight: 15,
   },
   infoTextBox: {
-    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
   },
+  goalContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
   goalText: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: 'bold',
     color: 'black',
   },
@@ -153,14 +229,21 @@ const styles = StyleSheet.create({
     color: 'gray',
   },
   goalInput: {
-    fontSize: 36,
+    fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
     textAlign: 'center',
     borderBottomWidth: 1,
     borderColor: '#ccc',
-    padding: 5,
-    width: '60%',
+    padding: 0,
+    marginTop: 10,
+    height: 40,
+    maxWidth: 300,
+    minWidth: 100,
+  },
+  editButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   editText: {
     fontSize: 18,
@@ -170,7 +253,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center', // 중앙 정렬
+    textAlign: 'center',
+    marginTop: 13,
     marginBottom: 10,
     color: 'black',
   },
@@ -185,10 +269,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   settingOption: {
-    fontSize: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+  },
+  settingText: {
+    fontSize: 16,
     color: 'black',
   },
 });

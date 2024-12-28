@@ -24,7 +24,7 @@ export default function AllActivitiesScreen({ navigation }: ProfileScreenProps) 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-back-outline" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerText}>최근 활동</Text>
@@ -60,12 +60,21 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    paddingRight: 37,
-    paddingTop: 30,
-    backgroundColor: '#fff',
-    elevation: 3,
+    justifyContent: 'center', // 중앙 정렬
+    paddingTop: 40,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
+  },
+  backButton: {
+    position: 'absolute', // 절대 위치로 설정
+    paddingTop: 20,
+    left: 20, // 왼쪽 여백 설정
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
   },
   headerText: {
     flex: 1,

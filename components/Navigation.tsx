@@ -38,7 +38,7 @@ type TabParamList = {
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const Navigation = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => void }) => {
-  const [loggedIn, setLoggedIn] = useState(true); // 상태 관리
+  const [loggedIn, setLoggedIn] = useState(true);
 
   return (
     <Tab.Navigator
@@ -59,7 +59,7 @@ const Navigation = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => void
       <Tab.Screen
         name="프로필"
         component={Profile}
-        initialParams={{ setLoggedIn: setIsLoggedIn }} // setLoggedIn을 프로필 화면에 전달
+        initialParams={{ setLoggedIn: setIsLoggedIn }}
         options={{ headerShown: false }}
       />
     </Tab.Navigator>

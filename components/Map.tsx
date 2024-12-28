@@ -8,12 +8,18 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const Map = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]);
-  const [isDrawingRoute, setIsDrawingRoute] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const webViewRef = useRef<WebView | null>(null);
-  const locationSubscription = useRef<any>(null); // 위치 추적을 위한 subscription을 ref로 저장
+  const [timer, setTimer] = useState(0);
+  const [distance, setDistance] = useState(0);
+  const [speed, setSpeed] = useState(0);
+  const [kcal, setKcal] = useState(0);
+  const [isRouteActive, setIsRouteActive] = useState(false);
 
-  // 위치 권한 요청 및 추적 시작
+  const webViewRef = useRef<WebView | null>(null);
+  const locationSubscription = useRef<any>(null);
+
+  const SEOUL_CITY_HALL = { latitude: 37.5665, longitude: 126.9780 };
+
   const requestLocationPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -21,7 +27,6 @@ const Map = () => {
       return;
     }
 
-    // 초기 위치 설정
     const currentLocation = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.High,
     });
@@ -30,63 +35,47 @@ const Map = () => {
       longitude: currentLocation.coords.longitude,
     });
 
-    // 위치 추적 시작
     locationSubscription.current = await Location.watchPositionAsync(
       {
         accuracy: Location.Accuracy.High,
-        timeInterval: 1000, // 1초마다 위치 업데이트
+        timeInterval: 1000,
         distanceInterval: 1,
       },
       (newLocation) => {
         const { latitude, longitude, accuracy } = newLocation.coords;
-        if (accuracy !== null && accuracy <= 20) { // 정확도가 20m 이내일 때만 위치 업데이트
+        if (accuracy !== null && accuracy <= 20) {
           const newCoord = { latitude, longitude };
           setLocation(newCoord);
-          if (isDrawingRoute) {
-            setRouteCoordinates((prevCoords) => [...prevCoords, newCoord]);
+
+          if (isRouteActive) {
+            webViewRef.current?.injectJavaScript(`
+              removeReachedRoute(${latitude}, ${longitude});
+            `);
           }
         }
       }
     );
   };
 
-  // 위치 업데이트 후 WebView에 마커 및 경로 업데이트
-  useEffect(() => {
-    if (location && webViewRef.current) {
-      const { latitude, longitude } = location;
-      const jsCode = `
-        updateMarker(${latitude}, ${longitude});
-        moveMapTo(${latitude}, ${longitude});
-        ${isDrawingRoute ? `drawRoute(${JSON.stringify(routeCoordinates)});` : ''}
-      `;
-      webViewRef.current.injectJavaScript(jsCode);
-    }
-  }, [location, routeCoordinates, isDrawingRoute]);
-
-  // 위치 권한 요청 및 위치 추적 시작
-  useEffect(() => {
-    requestLocationPermission();
-
-    return () => {
-      // 컴포넌트 언마운트 시 위치 추적 중지
-      if (locationSubscription.current) {
-        locationSubscription.current.remove();
-      }
-    };
-  }, [isDrawingRoute]);
-
-  // 경로 그리기 토글
   const toggleRouteDrawing = () => {
-    if (isDrawingRoute) {
-      setRouteCoordinates([]);
-      if (webViewRef.current) {
-        webViewRef.current.injectJavaScript('clearRoute();');
-      }
+    if (!isRunning) {
+      setIsRunning(true);
+    } else {
+      setIsRunning(false);
     }
-    setIsDrawingRoute(!isDrawingRoute);
   };
 
-  // Kakao Map HTML 컨텐츠
+  const drawRouteToCityHall = () => {
+    if (!location) {
+      Alert.alert('현재 위치를 가져오는 중입니다. 잠시 후 다시 시도하세요.');
+      return;
+    }
+    setIsRouteActive(true);
+    webViewRef.current?.injectJavaScript(`
+      drawRouteToCityHall(${location.latitude}, ${location.longitude}, ${SEOUL_CITY_HALL.latitude}, ${SEOUL_CITY_HALL.longitude});
+    `);
+  };
+
   const htmlContent = `
   <!DOCTYPE html>
   <html lang="ko">
@@ -106,74 +95,59 @@ const Map = () => {
       var map;
       var marker;
       var polyline;
+      var routePath = [];
 
       function initMap() {
         var container = document.getElementById('map');
         var options = {
-          center: new kakao.maps.LatLng(37.5665, 126.9780), // 초기 위치
+          center: new kakao.maps.LatLng(37.5665, 126.9780),
           level: 3,
         };
         map = new kakao.maps.Map(container, options);
-        console.log("Kakao Map initialized");
       }
 
-      function updateMarker(latitude, longitude) {
-        try {
-          var position = new kakao.maps.LatLng(latitude, longitude);
-          if (!marker) {
-            marker = new kakao.maps.Marker({
-              position: position,
-              map: map,
-            });
-          } else {
-            marker.setPosition(position); // 마커 위치 업데이트
+      function drawRouteToCityHall(startLat, startLng, endLat, endLng) {
+        var start = new kakao.maps.LatLng(startLat, startLng);
+        var end = new kakao.maps.LatLng(endLat, endLng);
+
+        var directions = new kakao.maps.services.Directions();
+        directions.route({
+          origin: start,
+          destination: end,
+          waypoints: [],
+          travelMode: kakao.maps.services.TravelMode.WALKING,
+        }, function(result, status) {
+          if (status === kakao.maps.services.Status.OK) {
+            var path = result.routes[0].legs[0].steps.map(step => new kakao.maps.LatLng(step.startLocation.lat, step.startLocation.lng));
+            path.push(end);
+            routePath = path;
+
+            if (!polyline) {
+              polyline = new kakao.maps.Polyline({
+                path: routePath,
+                strokeWeight: 5,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.7,
+                strokeStyle: 'solid',
+              });
+              polyline.setMap(map);
+            } else {
+              polyline.setPath(routePath);
+            }
           }
-          console.log("Marker updated:", latitude, longitude);
-        } catch (error) {
-          console.error("Error updating marker:", error);
-        }
+        });
       }
 
-      function moveMapTo(latitude, longitude) {
-        try {
-          var position = new kakao.maps.LatLng(latitude, longitude);
-          map.setCenter(position); // 지도 중앙 이동
-          console.log("Map moved to:", latitude, longitude);
-        } catch (error) {
-          console.error("Error moving map:", error);
-        }
-      }
+      function removeReachedRoute(currentLat, currentLng) {
+        var currentPos = new kakao.maps.LatLng(currentLat, currentLng);
 
-      function drawRoute(coordinates) {
-        try {
-          var path = coordinates.map(coord => new kakao.maps.LatLng(coord.latitude, coord.longitude));
-          if (!polyline) {
-            polyline = new kakao.maps.Polyline({
-              path: path,
-              strokeWeight: 5,
-              strokeColor: '#FF0000',
-              strokeOpacity: 0.7,
-              strokeStyle: 'solid',
-            });
-            polyline.setMap(map);
-          } else {
-            polyline.setPath(path); // 경로 업데이트
-          }
-          console.log("Route drawn with", coordinates.length, "points");
-        } catch (error) {
-          console.error("Error drawing route:", error);
-        }
-      }
+        routePath = routePath.filter(point => {
+          var distance = kakao.maps.geometry.spherical.computeDistanceBetween(currentPos, point);
+          return distance > 20; // 20m 이상 떨어진 점만 남김
+        });
 
-      function clearRoute() {
-        try {
-          if (polyline) {
-            polyline.setMap(null);
-            polyline = null;
-            console.log("Route cleared");
-          }
-        } catch (error) {
-          console.error("Error clearing route:", error);
+        if (polyline) {
+          polyline.setPath(routePath);
         }
       }
 
@@ -182,6 +156,16 @@ const Map = () => {
   </body>
   </html>
   `;
+
+  useEffect(() => {
+    requestLocationPermission();
+
+    return () => {
+      if (locationSubscription.current) {
+        locationSubscription.current.remove();
+      }
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -193,57 +177,25 @@ const Map = () => {
         javaScriptEnabled={true}
         domStorageEnabled={true}
       />
-      
+
       <View style={styles.runningBox}>
         <View style={styles.timerBox}>
-          <View style={styles.timerContent}>
-            <Text style={styles.timerTitle}>런닝 타임</Text>
-            <Text style={styles.timer}>{isRunning ? '00:10:30' : '00:00:00'}</Text>
-          </View>
+          <Text style={styles.timerTitle}>런닝 타임</Text>
+          <Text style={styles.timer}>{new Date(timer).toISOString().substr(11, 8)}</Text>
           <Icon
             name={isRunning ? 'pause' : 'play'}
             size={30}
             color="#ffffff"
-            onPress={() => setIsRunning(!isRunning)}
+            onPress={toggleRouteDrawing}
             style={styles.startPauseButton}
           />
-        </View>
-
-        <View style={styles.totalBox}>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Image
-                source={require('../assets/imgs/달리기.png')}
-                style={styles.statImage}
-              />
-              <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>103.2</Text>
-                <Text style={styles.statLabel}>km</Text>
-              </View>
-            </View>
-            <View style={styles.separatorVertical} />
-            <View style={styles.statItem}>
-              <Image
-                source={require('../assets/imgs/불.png')}
-                style={styles.statImage}
-              />
-              <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>16.9</Text>
-                <Text style={styles.statLabel}>kcal</Text>
-              </View>
-            </View>
-            <View style={styles.separatorVertical} />
-            <View style={styles.statItem}>
-              <Image
-                source={require('../assets/imgs/번개.png')}
-                style={styles.statImage}
-              />
-              <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>15.6</Text>
-                <Text style={styles.statLabel}>km/hr</Text>
-              </View>
-            </View>
-          </View>
+          <Icon
+            name="navigate"
+            size={30}
+            color="#ffffff"
+            onPress={drawRouteToCityHall}
+            style={styles.startPauseButton}
+          />
         </View>
       </View>
     </View>
@@ -275,15 +227,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  timerContent: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
   },
   timerTitle: {
     fontSize: 13,
-    color: '#333333', 
     fontWeight: 'bold',
   },
   timer: {
@@ -291,47 +237,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   startPauseButton: {
+    marginLeft: 10,
     backgroundColor: '#666dee',
     padding: 10,
     borderRadius: 5,
-  },
-  totalBox: {
-    marginTop: 10,
-    backgroundColor: '#F3F7FF',
-    borderRadius: 10,
-    padding: 15,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statImage: {
-    width: 30,  // 이미지 크기 조정
-    height: 30,
-    marginRight: 10, // 이미지와 텍스트 사이의 간격
-  },
-  statIcon: {
-    marginRight: 10,
-  },
-  statValueContainer: {
-    alignItems: 'flex-end',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-  },
-  separatorVertical: {
-    width: 1,
-    backgroundColor: '#ccc',
-    marginHorizontal: 10,
   },
 });
 

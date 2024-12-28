@@ -7,7 +7,7 @@ type ProfileScreenProps = {
   navigation: NavigationProp<any>;
 };
 
-const SettingPage = ({ navigation }: ProfileScreenProps ) => {
+const SettingPage = ({ navigation }: ProfileScreenProps) => {
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [privacyEnabled, setPrivacyEnabled] = useState(false);
   const [accountEnabled, setAccountEnabled] = useState(false);
@@ -16,19 +16,14 @@ const SettingPage = ({ navigation }: ProfileScreenProps ) => {
 
   return (
     <View style={styles.container}>
-      {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="black" /> {/* 검정색 화살표 */}
+          <Icon name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>설정</Text> {/* 검정색 글씨 */}
-        <TouchableOpacity onPress={() => console.log('저장 클릭')} style={styles.saveButton}>
-          <Text style={styles.saveText}>저장</Text> {/* 파란색 글씨 */}
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>설정</Text>
       </View>
 
-      {/* 설정 요소들 */}
-      <View style={styles.settingsList}>
+      <View style={styles.settingsContainer}>
         <View style={styles.settingItemContainer}>
           <Text style={styles.settingItem}>알림 설정</Text>
           <Switch
@@ -38,6 +33,8 @@ const SettingPage = ({ navigation }: ProfileScreenProps ) => {
             thumbColor={notificationEnabled ? '#ffffff' : '#f4f3f4'}
           />
         </View>
+        <View style={styles.separator} />
+
         <View style={styles.settingItemContainer}>
           <Text style={styles.settingItem}>개인정보 보호</Text>
           <Switch
@@ -47,6 +44,8 @@ const SettingPage = ({ navigation }: ProfileScreenProps ) => {
             thumbColor={privacyEnabled ? '#ffffff' : '#f4f3f4'}
           />
         </View>
+        <View style={styles.separator} />
+
         <View style={styles.settingItemContainer}>
           <Text style={styles.settingItem}>계정 관리</Text>
           <Switch
@@ -56,6 +55,8 @@ const SettingPage = ({ navigation }: ProfileScreenProps ) => {
             thumbColor={accountEnabled ? '#ffffff' : '#f4f3f4'}
           />
         </View>
+        <View style={styles.separator} />
+
         <View style={styles.settingItemContainer}>
           <Text style={styles.settingItem}>언어 설정</Text>
           <Switch
@@ -65,6 +66,8 @@ const SettingPage = ({ navigation }: ProfileScreenProps ) => {
             thumbColor={languageEnabled ? '#ffffff' : '#f4f3f4'}
           />
         </View>
+        <View style={styles.separator} />
+
         <View style={styles.settingItemContainer}>
           <Text style={styles.settingItem}>테마 설정</Text>
           <Switch
@@ -83,24 +86,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F3F7FF',
-    padding: 16,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    justifyContent: 'center', // 중앙 정렬
+    paddingTop: 40,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
   },
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    position: 'absolute', // 절대 위치로 설정
+    paddingTop: 20,
+    left: 20, // 왼쪽 여백 설정
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: 'black', // 검정색
+    color: 'black',
   },
   saveButton: {
     padding: 10,
@@ -109,20 +113,34 @@ const styles = StyleSheet.create({
     color: '#5D63D1', // 파란색
     fontWeight: 'bold',
   },
-  settingsList: {
+  settingsContainer: {
     marginTop: 20,
+    marginHorizontal: 20,
+    backgroundColor: '#ffffff', // 컨테이너 배경 색상
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: 10, // 둥근 모서리
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
   settingItemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
   },
   settingItem: {
     fontSize: 18,
+    color: 'black',
     flex: 1, // 텍스트가 왼쪽에 정렬되도록 flex 설정
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 5,
   },
 });
 

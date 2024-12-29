@@ -6,18 +6,27 @@ import { KakaoMap_API } from '@env';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Map = () => {
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [routeCoordinates, setRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]);
-  const [isRunning, setIsRunning] = useState(false);
-  const [timer, setTimer] = useState(0); // 시간 상태 추가
-  const [distance, setDistance] = useState(0); // 이동 거리 상태 추가
-  const [speed, setSpeed] = useState(0); // 속도 상태 추가
-  const [kcal, setKcal] = useState(0); // kcal 상태 초기값을 0으로 설정
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null); // 위치
+  const [routeCoordinates, setRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]); // 루트를 그리기위한 배열
+  const [isRunning, setIsRunning] = useState(false); // 시작 일시정지 상태 확인
+  const [timer, setTimer] = useState(0); // 타이머 상태 (초 단위)
+  const [distance, setDistance] = useState(0); // 이동거리 상태 초기값 0
+  const [speed, setSpeed] = useState(0); // 속도 상태 초기값 0
+  const [kcal, setKcal] = useState(0); // kcal 상태 초기값 0
   const webViewRef = useRef<WebView | null>(null);
   const locationSubscription = useRef<any>(null); // 위치 추적을 위한 subscription을 ref로 저장
-  const startTimeRef = useRef<number | null>(null); // 시작 시간을 저장할 ref
-  const previousTimeRef = useRef<number | null>(null); // 이전 시간을 저장할 ref (일시정지 후 계속 이어지도록)
-  const lastPauseTimeRef = useRef<number | null>(null); // 마지막 일시정지 시간을 기록할 ref
+
+
+  // 위치 권한 요청 및 위치 추적 시작
+  useEffect(() => {
+    requestLocationPermission();
+    return () => {
+      // 컴포넌트 언마운트 시 위치 추적 중지
+      if (locationSubscription.current) {
+        locationSubscription.current.remove();
+      }
+    };
+  }, [isRunning]);
 
   // 위치 권한 요청 및 추적 시작
   const requestLocationPermission = async () => {
@@ -26,7 +35,6 @@ const Map = () => {
       Alert.alert('Location permission denied.');
       return;
     }
-
     // 초기 위치 설정
     const currentLocation = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.High,
@@ -35,7 +43,6 @@ const Map = () => {
       latitude: currentLocation.coords.latitude,
       longitude: currentLocation.coords.longitude,
     });
-
     // 위치 추적 시작
     locationSubscription.current = await Location.watchPositionAsync(
       {
@@ -51,7 +58,6 @@ const Map = () => {
           if (isRunning) {
             setRouteCoordinates((prevCoords) => [...prevCoords, newCoord]);
           }
-
           // 거리 계산 (단위: km)
           if (location) {
             const prevLocation = location;
@@ -82,6 +88,11 @@ const Map = () => {
     return R * c; // km 단위로 반환
   };
 
+  // 경로 그리기 토글
+  const toggleRouteDrawing = () => {
+    setIsRunning((prev) => !prev);
+  };
+
   // 위치 업데이트 후 WebView에 마커 및 경로 업데이트
   useEffect(() => {
     if (location && webViewRef.current) {
@@ -94,30 +105,33 @@ const Map = () => {
     }
   }, [location, routeCoordinates, isRunning]);
 
-  // 위치 권한 요청 및 위치 추적 시작
+  // 속도 및 칼로리 계산
   useEffect(() => {
-    requestLocationPermission();
+    if (distance > 0 && timer > 0) {
+      const speed = (distance / (timer / 1000 / 3600)); // km/hr로 계산
+      setSpeed(speed);
 
-    return () => {
-      // 컴포넌트 언마운트 시 위치 추적 중지
-      if (locationSubscription.current) {
-        locationSubscription.current.remove();
-      }
-    };
-  }, [isRunning]);
-
-  // 경로 그리기 토글
-  const toggleRouteDrawing = () => {
-    if (!isRunning) {
-      setIsRunning(true); // 위치 추적 시작
-      startTimeRef.current = Date.now(); // 시작 시간 기록
-      previousTimeRef.current = Date.now(); // 이전 시간 기록
-      lastPauseTimeRef.current = null; // 일시정지 시간을 리셋
-    } else {
-      setIsRunning(false); // 위치 추적 중지
-      lastPauseTimeRef.current = Date.now(); // 일시정지 시간 기록
+      // kcal 계산 (이동 거리와 시간을 기준으로)
+      const timeInHours = (timer / 1000) / 3600; // 시간을 시간 단위로 변환
+      const calculatedKcal = Math.floor(distance * 50 * timeInHours); // 1km당 50kcal로 가정하고 계산
+      setKcal(calculatedKcal);
     }
-  };
+  }, [distance, timer]);
+
+  // 타이머 업데이트 (1초마다)
+  useEffect(() => {
+    let timerInterval: NodeJS.Timeout | null = null;
+
+    if (isRunning) {
+      timerInterval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer + 1);
+      }, 1000);
+    } else {
+      clearInterval(timerInterval!);
+    }
+
+    return () => clearInterval(timerInterval!);
+  }, [isRunning]);
 
   // Kakao Map HTML 컨텐츠
   const htmlContent = `
@@ -204,35 +218,6 @@ const Map = () => {
   </html>
   `;
 
-  // 타이머 업데이트 (1초마다)
-  useEffect(() => {
-    let timerInterval: NodeJS.Timeout | null = null;
-
-    if (isRunning) {
-      timerInterval = setInterval(() => {
-        const elapsedTime = Date.now() - (startTimeRef.current ?? Date.now());
-        setTimer(elapsedTime);
-      }, 1000);
-    } else {
-      clearInterval(timerInterval!);
-    }
-
-    return () => clearInterval(timerInterval!);
-  }, [isRunning]);
-
-  // 속도 및 칼로리 계산
-  useEffect(() => {
-    if (distance > 0 && timer > 0) {
-      const speed = (distance / (timer / 1000 / 3600)); // km/hr로 계산
-      setSpeed(speed);
-
-      // kcal 계산 (이동 거리와 시간을 기준으로)
-      const timeInHours = (timer / 1000) / 3600; // 시간을 시간 단위로 변환
-      const calculatedKcal = Math.floor(distance * 50 * timeInHours); // 1km당 50kcal로 가정하고 계산
-      setKcal(calculatedKcal); // 소수점 제외하고 정수로 계산
-    }
-  }, [distance, timer]);
-
   return (
     <View style={styles.container}>
       <WebView
@@ -248,7 +233,7 @@ const Map = () => {
         <View style={styles.timerBox}>
           <View style={styles.timerContent}>
             <Text style={styles.timerTitle}>런닝 타임</Text>
-            <Text style={styles.timer}>{new Date(timer).toISOString().substr(11, 8)}</Text>
+            <Text style={styles.timer}>{new Date(timer * 1000).toISOString().substr(11, 8)}</Text>
           </View>
           <Icon
             name={isRunning ? 'pause' : 'play'}
@@ -360,9 +345,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statImage: {
-    width: 30,  // 이미지 크기 조정
+    width: 30,
     height: 30,
-    marginRight: 10, // 이미지와 텍스트 사이의 간격
+    marginRight: 10,
   },
   statValueContainer: {
     alignItems: 'flex-end',
@@ -383,3 +368,4 @@ const styles = StyleSheet.create({
 });
 
 export default Map;
+  

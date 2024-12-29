@@ -18,7 +18,6 @@ const GoalSettingPage = ({ route, navigation }: ProfileScreenProps) => {
   const [newGoal, setNewGoal] = useState(goal.toString());
   const [isEditing, setIsEditing] = useState(false);
 
-  // 각각 다른 스위치 상태
   const [generalNotification, setGeneralNotification] = useState(false);
   const [sound, setSound] = useState(false);
   const [doNotDisturb, setDoNotDisturb] = useState(false);

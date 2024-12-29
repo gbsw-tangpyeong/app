@@ -32,7 +32,7 @@ type TabParamList = {
   홈: undefined;
   '코스 검색': undefined;
   지도: undefined;
-  프로필: { setLoggedIn: (value: boolean) => void }; // setLoggedIn을 프로필 화면에 전달
+  프로필: { setLoggedIn: (value: boolean) => void };
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();

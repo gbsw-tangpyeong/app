@@ -90,16 +90,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // 중앙 정렬
+    justifyContent: 'center',
     paddingTop: 40,
     paddingVertical: 20,
     paddingHorizontal: 20,
     backgroundColor: '#ffffff',
   },
   backButton: {
-    position: 'absolute', // 절대 위치로 설정
+    position: 'absolute',
     paddingTop: 20,
-    left: 20, // 왼쪽 여백 설정
+    left: 20,
   },
   headerTitle: {
     fontSize: 16,
@@ -110,18 +110,18 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   saveText: {
-    color: '#5D63D1', // 파란색
+    color: '#5D63D1',
     fontWeight: 'bold',
   },
   settingsContainer: {
     marginTop: 20,
     marginHorizontal: 20,
-    backgroundColor: '#ffffff', // 컨테이너 배경 색상
+    backgroundColor: '#ffffff',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 10,
     paddingBottom: 10,
-    borderRadius: 10, // 둥근 모서리
+    borderRadius: 10,
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 3,
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   settingItem: {
     fontSize: 18,
     color: 'black',
-    flex: 1, // 텍스트가 왼쪽에 정렬되도록 flex 설정
+    flex: 1,
   },
   separator: {
     height: 1,

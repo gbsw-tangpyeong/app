@@ -34,7 +34,7 @@ export default function AllActivitiesScreen({ navigation }: ProfileScreenProps) 
           <TouchableOpacity
             key={activity.key}
             style={styles.activityItem}
-            onPress={() => navigation.navigate('ActivitiesDetailScreen', { activity })} // 클릭 시 이동
+            onPress={() => navigation.navigate('ActivitiesDetailScreen', { activity })}
           >
             <Image source={{ uri: activity.image }} style={styles.activityImage} />
             <View style={styles.activityDetails}>
@@ -60,16 +60,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // 중앙 정렬
+    justifyContent: 'center', 
     paddingTop: 40,
     paddingVertical: 20,
     paddingHorizontal: 20,
     backgroundColor: '#ffffff',
   },
   backButton: {
-    position: 'absolute', // 절대 위치로 설정
+    position: 'absolute',
     paddingTop: 20,
-    left: 20, // 왼쪽 여백 설정
+    left: 20,
   },
   headerTitle: {
     fontSize: 16,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   activityList: {
     padding: 15,
-    paddingBottom: 20, // 리스트 끝에 여백 추가
+    paddingBottom: 20,
   },
   activityItem: {
     flexDirection: 'row',

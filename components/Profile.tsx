@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   outerTotalBox: {
-    backgroundColor: '#F3F7FF', // 새로운 박스 색상
+    backgroundColor: '#F3F7FF',
     borderRadius: 10,
     padding: 16,
     shadowColor: '#000',
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     paddingVertical: 10,
     marginLeft: 10,
-    flex: 1, // 텍스트를 왼쪽으로 정렬
+    flex: 1,
   },
   arrowIcon: {
     marginLeft: 10,
@@ -261,6 +261,6 @@ const styles = StyleSheet.create({
     margin: 'auto',
     height: 1,
     width: 250,
-    backgroundColor: '#ccc', // 연한 색으로 변경
+    backgroundColor: '#ccc',
   },
 });

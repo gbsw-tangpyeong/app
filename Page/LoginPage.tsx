@@ -73,11 +73,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F7FF', // 배경색
+    backgroundColor: '#F3F7FF',
     padding: 20,
   },
   authButtonWrapper: {
-    backgroundColor: '#fff', // 전체 컨테이너 배경을 하얀색으로
+    backgroundColor: '#fff',
     borderRadius: 8,
     paddingTop: 50,
     padding: 20,

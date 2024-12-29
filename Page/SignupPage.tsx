@@ -4,7 +4,6 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Signup_API } from '@env';
 import axios from 'axios';
 
-
 // 내비게이션 타입 정의
 type RootStackParamList = {
   LoginMain: undefined;
@@ -22,7 +21,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [phone, setPhone] = useState('');
 
-  // 회원가입 버튼 클릭 처리 함수
+  // 회원가입 처리 함수
   const handleSignup = async () => {
     if (id === '' || email === '' || password === '' || confirmPassword === '' || phone === '') {
       setError('모든 필드를 입력해주세요');
@@ -129,11 +128,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F7FF', // 배경색
+    backgroundColor: '#F3F7FF',
     padding: 20,
   },
   authButtonWrapper: {
-    backgroundColor: '#fff', // 전체 컨테이너 배경을 하얀색으로
+    backgroundColor: '#fff',
     borderRadius: 8,
     paddingTop: 50,
     padding: 20,

@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F3F7FF',
-    justifyContent: 'center', // 컨테이너를 화면 세로 중앙에 배치
+    justifyContent: 'center',
   },
   scrollView: {
     alignItems: 'center',
@@ -56,11 +56,11 @@ const styles = StyleSheet.create({
   },
   activityImage: {
     width: '100%',
-    height: 250, // 이미지 크기 조정
+    height: 250,
     resizeMode: 'cover',
     borderRadius: 10,
     backgroundColor: '#6d6d6d',
-    marginBottom: 30, // 이미지와 텍스트 간격
+    marginBottom: 30,
   },
   infoContainer: {
     marginBottom: 30,
@@ -90,12 +90,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cancelButton: {
-    backgroundColor: '#FF4D4D', // 빨간색
+    backgroundColor: '#FF4D4D',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10, // 시작하기 버튼과 간격을 둡니다.
+    marginTop: 10,
   },
   cancelButtonText: {
     color: 'white',

@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const Map = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null); // 위치
   const [routeCoordinates, setRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]); // 루트를 그리기위한 배열
+  const [savedRouteCoordinates, setSavedRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]); // 그린 루트의 좌표 저장
   const [isRunning, setIsRunning] = useState(false); // 시작 일시정지 상태 확인
   const [timer, setTimer] = useState(0); // 타이머 상태 (초 단위)
   const [distance, setDistance] = useState(0); // 이동거리 상태 초기값 0
@@ -118,7 +119,34 @@ const Map = () => {
     }
   }, [distance, timer]);
 
-  // 타이머 업데이트 (1초마다)
+  // 루트 초기화 함수
+  const resetRoute = () => {  
+    setSavedRouteCoordinates(routeCoordinates);
+    setRouteCoordinates([]);
+    if (webViewRef.current) {
+      const jsCode = `
+        if (polyline) {
+          polyline.setMap(null);
+        }
+        polyline = null;
+      `;
+      webViewRef.current.injectJavaScript(jsCode);
+    }
+  };
+
+  // 저장된 경로 불러오기
+  const loadRoute = () => {
+    if (savedRouteCoordinates.length > 0 && webViewRef.current) {
+      const jsCode = `
+        drawRoute(${JSON.stringify(savedRouteCoordinates)});
+      `;
+      webViewRef.current.injectJavaScript(jsCode);
+    } else {
+      Alert.alert('저장된 경로가 없습니다.');
+    }
+  };
+
+  // 타이머 업데이트 (1초마다 갱신)
   useEffect(() => {
     let timerInterval: NodeJS.Timeout | null = null;
 
@@ -242,6 +270,20 @@ const Map = () => {
             onPress={toggleRouteDrawing}
             style={styles.startPauseButton}
           />
+          <Icon
+            name="refresh"
+            size={30}
+            color="#ffffff"
+            onPress={resetRoute}
+            style={styles.resetButton}
+          />
+          <Icon
+            name="cloud-download"
+            size={30}
+            color="#666dee"
+            onPress={loadRoute}
+            style={styles.button}
+          />
         </View>
 
         <View style={styles.totalBox}>
@@ -324,6 +366,16 @@ const styles = StyleSheet.create({
   timer: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+  resetButton: {
+    backgroundColor: '#666dee',
+    padding: 10,
+    borderRadius: 5,
+  },
+  button: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
   },
   startPauseButton: {
     backgroundColor: '#666dee',

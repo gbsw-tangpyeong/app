@@ -14,20 +14,20 @@ export default function HomeScreen({ navigation }: ProfileScreenProps) {
 
   // 최근 활동 데이터 (시간을 분 단위로 변경)
   const activities = [
-    { key: 1, name: '코스 A', distance: '5 km', kcal: '300 kcal', time: '30분', image: '이미지url' },
-    { key: 2, name: '코스 B', distance: '7 km', kcal: '400 kcal', time: '40분', image: '이미지url' },
-    { key: 3, name: '코스 C', distance: '10 km', kcal: '600 kcal', time: '60분', image: '이미지url' },
+    { key: 1, name: '코스 A', distance: '5 km', kcal: '300 kcal', time: '30분', image: require('../assets/imgs/루트4.png') },
+    { key: 2, name: '코스 B', distance: '7 km', kcal: '400 kcal', time: '40분', image: require('../assets/imgs/루트2.png') },
+    { key: 3, name: '코스 C', distance: '10 km', kcal: '600 kcal', time: '60분', image:require('../assets/imgs/루트3.png') },
     { key: 4, name: '코스 D', distance: '6 km', kcal: '350 kcal', time: '35분', image: '이미지url' },
     { key: 5, name: '코스 E', distance: '8 km', kcal: '500 kcal', time: '50분', image: '이미지url' },
     { key: 6, name: '코스 F', distance: '9 km', kcal: '550 kcal', time: '55분', image: '이미지url' },
     { key: 7, name: '코스 G', distance: '3 km', kcal: '200 kcal', time: '20분', image: '이미지url' },
-    { key: 8, name: '코스 H', distance: '4 km', kcal: '250 kcal', time: '25분', image: '이미지url' },
+    { key: 8, name: '코스 H', distance: '4 km', kcal: '250 kcal', time: '25분', image: '이미지url' }, 
     { key: 9, name: '코스 I', distance: '5 km', kcal: '300 kcal', time: '30분', image: '이미지url' },
     { key: 10, name: '코스 J', distance: '6 km', kcal: '350 kcal', time: '36분', image: '이미지url' },
   ];
 
   // 활동 클릭 시 동작
-  const handleActivityClick = (activity: { key: number; name: string; distance: string; kcal: string; time: string; image: string; }) => {
+  const handleActivityClick = (activity) => {
     navigation.navigate('ActivitiesDetailScreen', { activity });
   };
 
@@ -106,7 +106,7 @@ export default function HomeScreen({ navigation }: ProfileScreenProps) {
         {activities.slice(0, 3).map((activity) => (
           <View key={activity.key}>
             <TouchableOpacity style={styles.activityItem} onPress={() => handleActivityClick(activity)}>
-              <Image source={{ uri: activity.image }} style={styles.activityImage} />
+            <Image source={activity.image} style={styles.activityImage} />
               <View style={styles.activityDetails}>
                 <Text style={styles.activitySubtitle}>{activity.name}</Text>
                 <Text style={styles.activityTitle}>{activity.distance}</Text>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     height: 80,
     padding: 16,
     marginTop: 55,
-    marginBottom: 25,
+    marginBottom: 30,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#5D63D1',

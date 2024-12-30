@@ -15,8 +15,8 @@ export default function LoginMainPage() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: 'https://via.placeholder.com/150' }}
+      <Image
+        source={require('../assets/imgs/로고.png')}
         style={styles.logo}
       />
 

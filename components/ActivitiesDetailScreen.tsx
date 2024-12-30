@@ -15,10 +15,7 @@ export default function ActivitiesDetailScreen({ route }) {
     <View style={styles.container}>
       <View style={styles.scrollView}>
         <View style={styles.contentContainer}>
-          <Image
-            source={{ uri: activity.image }}
-            style={styles.activityImage}
-          />
+          <Image source={activity.image} style={styles.activityImage} />
           <View style={styles.infoContainer}>
             <Text style={styles.activityTitle}>{activity.name}</Text>
             <Text style={styles.activityDetail}>거리: {activity.distance}</Text>
@@ -78,7 +75,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   startButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#16c13e',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -90,7 +87,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cancelButton: {
-    backgroundColor: '#FF4D4D',
+    backgroundColor: '#ff6363',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',

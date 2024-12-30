@@ -270,7 +270,7 @@ const Map = () => {
             onPress={toggleRouteDrawing}
             style={styles.startPauseButton}
           />
-          <Icon
+          {/* <Icon
             name="refresh"
             size={30}
             color="#ffffff"
@@ -283,7 +283,7 @@ const Map = () => {
             color="#666dee"
             onPress={loadRoute}
             style={styles.button}
-          />
+          /> */}
         </View>
 
         <View style={styles.totalBox}>
@@ -316,7 +316,7 @@ const Map = () => {
                 style={styles.statImage}
               />
               <View style={styles.statValueContainer}>
-                <Text style={styles.statValue}>{speed.toFixed(1)}</Text>
+                <Text style={styles.statValue}>0</Text>
                 <Text style={styles.statLabel}>km/hr</Text>
               </View>
             </View>

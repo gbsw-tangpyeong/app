@@ -21,7 +21,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [phone, setPhone] = useState('');
 
-  // 회원가입 처리 함수
   const handleSignup = async () => {
     if (id === '' || email === '' || password === '' || confirmPassword === '' || phone === '') {
       setError('모든 필드를 입력해주세요');
@@ -37,36 +36,36 @@ export default function SignupPage() {
           phone: phone,
           address: '',
         };
-        const apiUrl = Signup_API;
+        const apiUrl = 'groot.crgoq8qcca67.us-east-2.rds.amazonaws.com/api/user/register';
   
-        // Axios POST 요청
-        const response = await axios.post(apiUrl, data, {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify(data),
         });
   
         // 성공 처리
-        if (response.status === 200) {
+        if (response.ok) {
           alert('회원가입이 완료되었습니다!');
           navigation.navigate('LoginPage');
-        }
-      } catch (err: unknown) {
-        // 오류 처리
-        if (axios.isAxiosError(err)) {
-          // Axios 에러의 경우
-          if (err.response && err.response.data && err.response.data.message) {
-            setError(err.response.data.message);
+        } else {
+          // 오류
+          const errorData = await response.json();
+          if (errorData.message) {
+            setError(errorData.message);
           } else {
             setError('회원가입에 실패했습니다. 다시 시도해주세요.');
           }
-        } else {
-          // 일반적인 에러
-          setError('알 수 없는 오류가 발생했습니다.');
         }
+      } catch (err) {
+        console.error('회원가입 요청 중 오류:', err);
+        setError('알 수 없는 오류가 발생했습니다.');
       }
     }
   };
+  
   
 
   return (

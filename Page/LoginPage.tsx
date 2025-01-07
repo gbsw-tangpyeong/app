@@ -20,12 +20,40 @@ export default function LoginPage({ setIsLoggedIn }: LoginPageProps) {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (id && password) {
-      console.log('로그인 시도:', id, password);
-      setIsLoggedIn(true);
-    } else if (id == ''|| password == ''){
-      setError('아이디와 비밀번호를 입력해주세요');
+      try {
+        const data = {
+          username: id,
+          password: password,
+        };
+  
+        const response = await fetch('groot.crgoq8qcca67.us-east-2.rds.amazonaws.com/api/user/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || '로그인에 실패했습니다.');
+        }
+  
+        const result = await response.json();
+  
+        // 성공 처리
+        console.log('로그인 성공:', result);
+        setIsLoggedIn(true);
+        navigation.navigate('Home');
+      } catch (error) {
+        // 오류
+        console.error('로그인 오류:', error);
+        setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+      }
+    } else {
+      setError('아이디와 비밀번호를 입력해주세요.');
     }
   };
 
